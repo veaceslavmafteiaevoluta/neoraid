@@ -1,0 +1,19 @@
+# Local development: build tools, local preview, internal docs and assistant
+# context stay on the dev machine. The repository ships the plugin (dist/),
+# its sources (src/) and the screenshots.
+tools/
+docs/
+preview/
+CLAUDE.md
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS and editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

@@ -1,0 +1,131 @@
+Menu="UserPreferences"
+Title="Neoraid"
+Icon="paint-brush"
+Tag="paint-brush"
+---
+<?
+/* Settings > Neoraid: theme options saved to
+ * /boot/config/plugins/neoraid/neoraid.cfg through /update.php.
+ * Every change previews at once through window.nrTheme (nr.js); Apply saves
+ * it for all pages and browsers.
+ */
+$nr = parse_plugin_cfg('neoraid');
+$nr_accent = preg_match('/^#[0-9a-fA-F]{6}$/', $nr['ACCENT'] ?? '') ? strtolower($nr['ACCENT']) : '#ff8c2f';
+$nr_presets = [
+  '#ff8c2f' => _('Unraid orange'),
+  '#e22828' => _('Unraid red'),
+  '#3b82f6' => _('Blue'),
+  '#14b8a6' => _('Teal'),
+  '#22c55e' => _('Green'),
+  '#8b5cf6' => _('Violet'),
+  '#ec4899' => _('Pink'),
+  '#64748b' => _('Slate'),
+];
+?>
+<style>
+.nr-swatches{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.8rem;vertical-align:middle}
+.nr-swatch{width:2.6rem;height:2.6rem;border-radius:999px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);outline-offset:2px}
+.nr-swatch[aria-checked="true"]{outline:2px solid var(--nr-text,#1c1917)}
+.nr-swatches input[type="color"]{width:4.4rem;height:2.8rem;padding:.2rem;cursor:pointer}
+.nr-accent-value{font-family:var(--nr-mono,monospace);font-size:1.2rem;color:var(--nr-muted,#78716c)}
+</style>
+
+<form markdown="1" name="nr_settings" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#file" value="neoraid/neoraid.cfg">
+
+_(Accent colour)_:
+: <span class="nr-swatches" role="radiogroup" aria-label="_(Accent colour)_">
+  <?foreach ($nr_presets as $hex => $label):?>
+  <span class="nr-swatch" role="radio" tabindex="0" data-color="<?=$hex?>" title="<?=$label?>" aria-label="<?=$label?>" aria-checked="<?=$hex==$nr_accent?'true':'false'?>" style="background:<?=$hex?>"></span>
+  <?endforeach;?>
+  <input type="color" name="ACCENT" value="<?=$nr_accent?>" title="_(Custom colour)_">
+  <span class="nr-accent-value"><?=$nr_accent?></span>
+  </span>
+
+> Used for the active page, links, focus rings, primary buttons, toggles, usage bars and Dashboard charts.
+> The Unraid orange is the default.
+
+_(Default mode)_:
+: <select name="MODE">
+  <?=mk_option($nr['MODE'] ?? 'auto', 'auto', _('Follow Display Settings'))?>
+  <?=mk_option($nr['MODE'] ?? 'auto', 'light', _('Light'))?>
+  <?=mk_option($nr['MODE'] ?? 'auto', 'dark', _('Dark'))?>
+  </select>
+
+> The mode every browser starts in. The switch in the navigation bar still overrides it for one browser.
+
+_(Density)_:
+: <select name="DENSITY">
+  <?=mk_option($nr['DENSITY'] ?? 'comfortable', 'comfortable', _('Comfortable'))?>
+  <?=mk_option($nr['DENSITY'] ?? 'comfortable', 'compact', _('Compact'))?>
+  </select>
+
+_(Corners)_:
+: <select name="RADIUS">
+  <?=mk_option($nr['RADIUS'] ?? 'standard', 'standard', _('Standard'))?>
+  <?=mk_option($nr['RADIUS'] ?? 'standard', 'sharp', _('Sharp'))?>
+  <?=mk_option($nr['RADIUS'] ?? 'standard', 'round', _('Round'))?>
+  </select>
+
+_(Font)_:
+: <select name="FONT">
+  <?=mk_option($nr['FONT'] ?? 'inter', 'inter', _('Inter (included)'))?>
+  <?=mk_option($nr['FONT'] ?? 'inter', 'system', _('System font'))?>
+  </select>
+
+_(Light/dark switch in the navigation bar)_:
+: <select name="SWITCH">
+  <?=mk_option($nr['SWITCH'] ?? 'show', 'show', _('Show'))?>
+  <?=mk_option($nr['SWITCH'] ?? 'show', 'hide', _('Hide'))?>
+  </select>
+
+&nbsp;
+: <span class="inline-block">
+  <input type="submit" name="#apply" value="_(Apply)_" disabled>
+  <input type="button" value="_(Default)_" onclick="nrDefaults(this.form)">
+  <input type="button" value="_(Done)_" onclick="done()">
+</span>
+
+</form>
+
+<script>
+(function () {
+  var form = document.forms.nr_settings;
+  var DEFAULTS = {ACCENT: '#ff8c2f', MODE: 'auto', DENSITY: 'comfortable', RADIUS: 'standard', FONT: 'inter', SWITCH: 'show'};
+
+  function current() {
+    return {
+      accent: form.ACCENT.value.toLowerCase(),
+      mode: form.MODE.value,
+      density: form.DENSITY.value,
+      radius: form.RADIUS.value,
+      font: form.FONT.value,
+      'switch': form.SWITCH.value
+    };
+  }
+  function changed() {
+    var value = form.ACCENT.value.toLowerCase();
+    $(form).find('.nr-accent-value').text(value);
+    $(form).find('.nr-swatch').each(function () {
+      this.setAttribute('aria-checked', this.getAttribute('data-color') === value ? 'true' : 'false');
+    });
+    if (window.nrTheme) window.nrTheme.preview(current());
+    $(form).find('input[name="#apply"]').prop('disabled', false);
+  }
+  function pick(swatch) {
+    form.ACCENT.value = swatch.getAttribute('data-color');
+    changed();
+  }
+
+  $(form).on('input change', 'input[name="ACCENT"], select', changed);
+  $(form).on('click', '.nr-swatch', function () { pick(this); });
+  $(form).on('keydown', '.nr-swatch', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(this); }
+  });
+
+  window.nrDefaults = function () {
+    for (var name in DEFAULTS) form[name].value = DEFAULTS[name];
+    changed();
+  };
+})();
+</script>

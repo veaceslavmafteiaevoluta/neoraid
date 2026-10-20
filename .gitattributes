@@ -1,0 +1,5 @@
+# LF everywhere: Unraid downloads dist/neoraid.plg and runs its scripts in bash
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.woff2 binary

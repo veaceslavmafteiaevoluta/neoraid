@@ -1,0 +1,30 @@
+Menu="Buttons:999"
+Title="Neoraid"
+Link="nr-anchor"
+---
+<?
+/* Neoraid theme layer.
+ * The webGUI links sheets/Neoraid.css for this page automatically
+ * (includePageStylesheets), right after the stock theme stylesheet.
+ * Link="nr-anchor" renders an empty div in the nav, where nr.js mounts
+ * the light/dark switch.
+ * The options from Settings > Neoraid go to nr.js as window.nrConfig;
+ * every value is checked against a fixed list, so nothing else gets printed.
+ */
+$nr_cfg = parse_plugin_cfg('neoraid');
+$nr_pick = function($key, $allowed) use ($nr_cfg) {
+  $value = $nr_cfg[$key] ?? '';
+  return in_array($value, $allowed, true) ? $value : $allowed[0];
+};
+$nr_accent = $nr_cfg['ACCENT'] ?? '';
+$nr_config = [
+  'accent'  => preg_match('/^#[0-9a-fA-F]{6}$/', $nr_accent) ? strtolower($nr_accent) : '#ff8c2f',
+  'mode'    => $nr_pick('MODE', ['auto', 'light', 'dark']),
+  'density' => $nr_pick('DENSITY', ['comfortable', 'compact']),
+  'radius'  => $nr_pick('RADIUS', ['standard', 'sharp', 'round']),
+  'font'    => $nr_pick('FONT', ['inter', 'system']),
+  'switch'  => $nr_pick('SWITCH', ['show', 'hide']),
+];
+?>
+<script>window.nrConfig = <?=json_encode($nr_config)?>;</script>
+<script src="<?autov('/plugins/neoraid/nr.js')?>"></script>

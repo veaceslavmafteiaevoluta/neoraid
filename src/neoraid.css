@@ -1,0 +1,2727 @@
+/*
+ * Neoraid — theme layer for the Unraid 7.3 webGUI
+ *
+ * Installed as sheets/Neoraid.css next to Neoraid.page (a hidden
+ * "Buttons" page), so the webGUI links it on every page right after the stock
+ * theme file. Everything is scoped under `html.nr`, a class the page adds to
+ * <html>; removing the plugin restores the stock look completely.
+ *
+ * Font: Inter by Rasmus Andersson, SIL Open Font License 1.1 (embedded).
+ *
+ * Light / dark follows the theme picked in Settings > Display Settings
+ * (white, azure -> light; black, gray -> dark) unless the switch in the
+ * navigation bar or Settings > Neoraid picks a mode (classes nr-dark,
+ * nr-light). The other Settings > Neoraid options arrive as data-nr-*
+ * attributes on <html>.
+ *
+ * Structure
+ *   1. Font
+ *   2. Design tokens (light, dark), options
+ *   3. Stock variable bridge (so plugins that use Unraid vars follow along),
+ *      Vue components
+ *   4. Base & typography
+ *   5. Header, navigation, footer
+ *   6. Page structure: titles, tabs, panels, definition lists
+ *   7. Controls: buttons, inputs, selects, checkboxes, switches
+ *   8. Tables & usage meters
+ *   9. Dashboard
+ *  10. Overlays: dialogs, alerts, tooltips, notices, context menus,
+ *      Community Applications
+ *  11. Sidebar layouts (gray, azure)
+ */
+
+/* 1. Font ------------------------------------------------------------- */
+
+@font-face {
+    font-family: "Inter Variable";
+    font-style: normal;
+    font-display: swap;
+    font-weight: 100 900;
+    src: url("fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* 2. Design tokens ---------------------------------------------------- */
+
+.nr {
+    --nr-font: "Inter Variable", "Inter", clear-sans, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --nr-mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", bitstream, monospace;
+
+    /* Unraid brand */
+    --nr-brand-red: #e22828;
+    --nr-brand-orange: #ff8c2f;
+    --nr-brand-gradient: linear-gradient(90deg, var(--nr-brand-red), var(--nr-brand-orange));
+    --nr-primary-gradient: linear-gradient(180deg, #f2672a, #e2442a);
+
+    /* Shape & motion */
+    --nr-radius-sm: 6px;
+    --nr-radius: 8px;
+    --nr-radius-lg: 12px;
+    --nr-radius-xl: 16px;
+    --nr-control-h: 3.4rem;
+    --nr-row-h: 4.4rem;
+    --nr-ease: cubic-bezier(.2, 0, 0, 1);
+    --nr-fast: 120ms;
+
+    /* Light palette: warm neutrals that sit well next to the brand orange */
+    --nr-bg: #f5f5f4;
+    --nr-surface: #ffffff;
+    --nr-surface-2: #fafaf9;
+    --nr-surface-3: #efeeec;
+    --nr-border: #e7e5e4;
+    --nr-border-strong: #d6d3d1;
+    --nr-text: #1c1917;
+    --nr-text-2: #44403c;
+    --nr-muted: #78716c;
+    --nr-faint: #a8a29e;
+
+    --nr-accent: #ff8c2f;
+    --nr-accent-text: #c2410c;
+    --nr-accent-soft: rgba(255, 140, 47, .12);
+    --nr-focus-ring: 0 0 0 3px rgba(255, 140, 47, .32);
+
+    --nr-success: #16a34a;
+    --nr-warning: #d97706;
+    --nr-danger: #dc2626;
+    --nr-info: #2563eb;
+    --nr-success-soft: rgba(22, 163, 74, .10);
+    --nr-warning-soft: rgba(217, 119, 6, .10);
+    --nr-danger-soft: rgba(220, 38, 38, .09);
+    --nr-info-soft: rgba(37, 99, 235, .08);
+
+    --nr-meter-ok: #22a35a;
+    --nr-meter-warn: #e8930c;
+    --nr-meter-crit: #e0362c;
+
+    --nr-shadow-xs: 0 1px 1px rgba(28, 25, 23, .04);
+    --nr-shadow-sm: 0 1px 2px rgba(28, 25, 23, .05), 0 1px 1px rgba(28, 25, 23, .02);
+    --nr-shadow-md: 0 1px 2px rgba(28, 25, 23, .04), 0 6px 16px -4px rgba(28, 25, 23, .08);
+    --nr-shadow-lg: 0 2px 6px rgba(28, 25, 23, .06), 0 24px 48px -12px rgba(28, 25, 23, .22);
+    --nr-overlay: rgba(28, 25, 23, .42);
+    --nr-nav-glass: rgba(255, 255, 255, .82);
+
+    /* The same neutrals as bare HSL triplets, for the Vue components' hsl(var(--x)) */
+    --nr-hsl-surface: 0 0% 100%;
+    --nr-hsl-surface-3: 40 8.6% 93.1%;
+    --nr-hsl-border: 20 5.9% 90%;
+    --nr-hsl-text: 24 9.8% 10%;
+    --nr-hsl-muted: 25 5.3% 44.7%;
+
+    color-scheme: light;
+}
+
+.nr.Theme--black:not(.nr-light),
+.nr.Theme--gray:not(.nr-light),
+.nr.nr-dark {
+    --nr-bg: #111110;
+    --nr-surface: #1a1918;
+    --nr-surface-2: #201f1e;
+    --nr-surface-3: #2a2927;
+    --nr-border: #2c2b29;
+    --nr-border-strong: #3d3b39;
+    --nr-text: #eeedeb;
+    --nr-text-2: #c9c7c4;
+    --nr-muted: #908d89;
+    --nr-faint: #67645f;
+
+    --nr-accent-text: #ff9f52;
+    --nr-accent-soft: rgba(255, 140, 47, .14);
+    --nr-focus-ring: 0 0 0 3px rgba(255, 140, 47, .38);
+
+    --nr-success: #4ade80;
+    --nr-warning: #fbbf24;
+    --nr-danger: #f87171;
+    --nr-info: #60a5fa;
+    --nr-success-soft: rgba(74, 222, 128, .10);
+    --nr-warning-soft: rgba(251, 191, 36, .10);
+    --nr-danger-soft: rgba(248, 113, 113, .10);
+    --nr-info-soft: rgba(96, 165, 250, .10);
+
+    --nr-meter-ok: #3fbf6f;
+    --nr-meter-warn: #f0a224;
+    --nr-meter-crit: #f2554b;
+
+    --nr-shadow-xs: 0 1px 1px rgba(0, 0, 0, .3);
+    --nr-shadow-sm: 0 1px 2px rgba(0, 0, 0, .35);
+    --nr-shadow-md: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 20px -6px rgba(0, 0, 0, .5);
+    --nr-shadow-lg: 0 2px 6px rgba(0, 0, 0, .35), 0 24px 56px -12px rgba(0, 0, 0, .7);
+    --nr-overlay: rgba(0, 0, 0, .6);
+    --nr-nav-glass: rgba(26, 25, 24, .82);
+
+    --nr-hsl-surface: 30 4% 9.8%;
+    --nr-hsl-surface-3: 40 3.7% 15.9%;
+    --nr-hsl-border: 40 3.5% 16.7%;
+    --nr-hsl-text: 40 8.1% 92.7%;
+    --nr-hsl-muted: 34 3.1% 55.1%;
+
+    color-scheme: dark;
+}
+
+/* Options from Settings > Neoraid. nr.js sets these attributes on
+   <html> (and writes the accent colour overrides) from the plugin config. */
+html.nr[data-nr-density="compact"] {
+    --nr-row-h: 3.4rem;
+    --nr-control-h: 3rem;
+}
+
+html.nr[data-nr-density="compact"] :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody td {
+    padding-top: .3rem;
+    padding-bottom: .3rem;
+}
+
+html.nr[data-nr-radius="sharp"] {
+    --nr-radius-sm: 2px;
+    --nr-radius: 3px;
+    --nr-radius-lg: 4px;
+    --nr-radius-xl: 6px;
+}
+
+html.nr[data-nr-radius="round"] {
+    --nr-radius-sm: 8px;
+    --nr-radius: 12px;
+    --nr-radius-lg: 16px;
+    --nr-radius-xl: 22px;
+}
+
+html.nr[data-nr-font="system"] {
+    --nr-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html.nr[data-nr-switch="hide"] .nr-anchor {
+    display: none;
+}
+
+/* 3. Stock variable bridge -------------------------------------------- */
+
+.nr {
+    --text-color: var(--nr-text);
+    --blockquote-text-color: var(--nr-text-2);
+    --alt-text-color: var(--nr-muted);
+    --disabled-text-color: var(--nr-faint);
+    --link-text-color: var(--nr-accent-text);
+
+    --background-color: var(--nr-bg);
+    --alt-background-color: var(--nr-surface);
+    --opac-background-color: var(--nr-surface);
+    --mild-background-color: var(--nr-surface);
+    --shade-bg-color: var(--nr-surface-2);
+    --input-bg-color: var(--nr-surface);
+    --focus-input-bg-color: var(--nr-surface);
+    --disabled-input-background-color: var(--nr-surface-2);
+
+    --border-color: var(--nr-border);
+    --alt-border-color: var(--nr-border-strong);
+    --input-border-color: var(--nr-border-strong);
+    --textarea-border-color: var(--nr-border-strong);
+    --disabled-border-color: var(--nr-border);
+    --disabled-input-border-color: var(--nr-border);
+    --focus-input-border-color: var(--nr-accent);
+    --hr-color: var(--nr-border);
+
+    --table-border-color: var(--nr-border);
+    --table-alt-border-color: var(--nr-border);
+    --table-background-color: transparent;
+    --table-header-background-color: var(--nr-surface-2);
+    --hover-table-row-background-color: var(--nr-surface-2);
+    --title-header-background-color: transparent;
+
+    --dashboard-background-color: var(--nr-surface);
+    --dashboard-border-color: var(--nr-border);
+    --dashboard-title-action-color: transparent;
+    --dashboard-icon-color: var(--nr-muted);
+    --dashstats-pie-after-bg-color: var(--nr-surface);
+
+    --usage-bar-background-color: var(--nr-surface-3);
+    --usage-bar-used-background-color: var(--nr-accent);
+    --usage-disk-background-color: var(--nr-surface-3);
+
+    --footer-text: var(--nr-muted);
+    --footer-background-color: var(--nr-surface);
+    --small-shadow: var(--nr-shadow-md);
+
+    --checkbox-color: var(--nr-surface-3);
+    --checkbox-hover-color: var(--nr-border-strong);
+    --scrollbar-color: var(--nr-border-strong);
+    --scrollbar-hover-color: var(--nr-faint);
+
+    /* Sidebar layouts read these with !important, so the bridge is how we win */
+    --button-border: var(--nr-border-strong);
+    --button-text-color: var(--nr-text);
+    --button-background: var(--nr-surface);
+    --hover-button-border: var(--nr-faint);
+    --hover-button-text-color: var(--nr-text);
+    --hover-button-background: var(--nr-surface-2);
+
+    --dynamix-tablesorter-thead-row-border-color: var(--nr-border);
+    --dynamix-tablesorter-thead-th-text-color: var(--nr-muted);
+    --dynamix-tablesorter-thead-th-bg-color: var(--nr-surface-2);
+    --dynamix-tablesorter-tbody-row-bg-color: var(--nr-surface);
+    --dynamix-tablesorter-tbody-row-alt-bg-color: var(--nr-surface);
+    --dynamix-tablesorter-tbody-row-border-color: var(--nr-border);
+
+    --dynamix-ui-dropdownchecklist-color: var(--nr-text);
+    --dynamix-ui-dropdownchecklist-color-alt1: var(--nr-surface-2);
+    --dynamix-ui-dropdownchecklist-color-alt2: var(--nr-muted);
+    --dynamix-ui-dropdownchecklist-dropcontainer-border-color: var(--nr-border);
+    --dynamix-ui-state-active-border-color: var(--nr-border);
+
+    --dynamix-jquery-ui-border-color: var(--nr-border);
+    --dynamix-jquery-ui-header-background: var(--nr-surface);
+    --dynamix-jquery-ui-header-color: var(--nr-text);
+    --dynamix-jquery-ui-content-background: var(--nr-surface);
+    --dynamix-jquery-ui-content-color: var(--nr-text);
+    --dynamix-jquery-ui-active-background: var(--nr-surface-3);
+    --dynamix-jquery-ui-dropcontainer-background: var(--nr-surface);
+    --dynamix-jquery-ui-text-color: var(--nr-text);
+    --dynamix-jquery-ui-disabled-color: var(--nr-faint);
+    --dynamix-jquery-ui-disabled-border-color: var(--nr-border);
+    --dynamix-jquery-ui-disabled-background: var(--nr-surface-2);
+
+    --dynamix-sweet-alert-text-color: var(--nr-text);
+    --dynamix-sweet-alert-icon-bg-color: var(--nr-surface);
+
+    --dynamix-tooltipster-sidetip-bg-from: var(--nr-surface);
+    --dynamix-tooltipster-sidetip-bg-to: var(--nr-surface);
+    --dynamix-tooltipster-sidetip-content-text-color: var(--nr-text);
+    --dynamix-tooltipster-sidetip-arrow-bg-color: var(--nr-surface);
+    --dynamix-tooltipster-sidetip-arrow-border-color: var(--nr-border);
+    --dynamix-tooltipster-sidetip-box-border-color: var(--nr-border);
+
+    --dynamix-filetree-bg-color: var(--nr-surface);
+    --dynamix-box-text-color: var(--nr-text);
+    --dynamix-select-bg-color: var(--nr-surface);
+    --dynamix-select-box-shadow: none;
+    --dynamix-select-disabled-bg-color: var(--nr-surface-2);
+    --dynamix-select-disabled-border-color: var(--nr-border);
+    --dynamix-select-disabled-color: var(--nr-faint);
+    --dynamix-awesomplete-text-color: var(--nr-text);
+    --dynamix-awesomplete-list-bg-color: var(--nr-surface);
+    --dynamix-awesomplete-list-bg-from-color: var(--nr-surface);
+    --dynamix-awesomplete-list-border-color: var(--nr-border);
+}
+
+/* Vue components (header, notifications, modals) live in .unapi scopes that
+   redeclare these on .dark / .Theme--*; `html.nr .unapi` outranks both, and
+   the tokens flip with the switch, so the components follow it too. */
+html.nr,
+html.nr .unapi {
+    --color-alpha: var(--nr-accent);
+    --color-beta: var(--nr-text);
+    --color-gamma: var(--nr-surface);
+    --color-gamma-opaque: var(--nr-nav-glass);
+    --color-border: var(--nr-border);
+
+    --ui-text-dimmed: var(--nr-faint);
+    --ui-text-muted: var(--nr-muted);
+    --ui-text-toned: var(--nr-text-2);
+    --ui-text: var(--nr-text-2);
+    --ui-text-highlighted: var(--nr-text);
+    --ui-bg: var(--nr-surface);
+    --ui-bg-muted: var(--nr-surface-2);
+    --ui-bg-elevated: var(--nr-surface-2);
+    --ui-bg-accented: var(--nr-surface-3);
+    --ui-border: var(--nr-border);
+    --ui-border-muted: var(--nr-border);
+    --ui-border-accented: var(--nr-border-strong);
+
+    --background: var(--nr-hsl-surface);
+    --foreground: var(--nr-hsl-text);
+    --card: var(--nr-hsl-surface);
+    --card-foreground: var(--nr-hsl-text);
+    --popover: var(--nr-hsl-surface);
+    --popover-foreground: var(--nr-hsl-text);
+    --muted: var(--nr-hsl-surface-3);
+    --muted-foreground: var(--nr-hsl-muted);
+    --secondary: var(--nr-hsl-surface-3);
+    --secondary-foreground: var(--nr-hsl-text);
+    --accent: var(--nr-hsl-surface-3);
+    --accent-foreground: var(--nr-hsl-text);
+    --border: var(--nr-hsl-border);
+    --input: var(--nr-hsl-border);
+}
+
+/* 4. Base & typography ------------------------------------------------ */
+
+.nr body {
+    font-family: var(--nr-font);
+    font-size: 1.4rem;
+    line-height: 1.5;
+    color: var(--nr-text);
+    background-color: var(--nr-bg);
+    font-feature-settings: "cv11", "ss03";
+    text-rendering: optimizeLegibility;
+}
+
+.nr ::selection {
+    color: var(--nr-text);
+    background-color: color-mix(in srgb, var(--nr-accent) 28%, transparent);
+}
+
+.nr p:where(:not(.unapi *)) {
+    text-align: left;
+    text-wrap: pretty;
+}
+
+.nr a {
+    color: var(--nr-accent-text);
+    text-underline-offset: .2em;
+    text-decoration-thickness: 1px;
+}
+
+.nr a.none,
+.nr a.list {
+    color: inherit;
+}
+
+.nr :focus-visible {
+    outline: 2px solid var(--nr-accent);
+    outline-offset: 2px;
+}
+
+.nr hr {
+    background-color: var(--nr-border);
+    margin: 2.4rem 0;
+}
+
+.nr pre {
+    font-family: var(--nr-mono);
+    font-size: 1.25rem;
+    line-height: 1.6;
+    background-color: var(--nr-surface-2);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius);
+    padding: 1rem 1.2rem;
+}
+
+.nr span.bitstream,
+.nr .font-mono {
+    font-family: var(--nr-mono);
+}
+
+.nr big {
+    font-weight: 600;
+}
+
+.nr i.control {
+    color: var(--nr-muted);
+}
+
+/* Status text keeps the stock class names, only the hues move */
+.nr .green,
+.nr .green-text,
+.nr .passed {
+    color: var(--nr-success);
+}
+
+.nr .red,
+.nr .red-text,
+.nr .failed {
+    color: var(--nr-danger);
+}
+
+.nr .orange,
+.nr .orange-text,
+.nr .warning {
+    color: var(--nr-warning);
+}
+
+.nr .blue,
+.nr .blue-text {
+    color: var(--nr-info);
+}
+
+.nr .grey-text {
+    color: var(--nr-muted);
+}
+
+.nr .green-orb {
+    color: var(--nr-success);
+}
+
+.nr .red-orb {
+    color: var(--nr-danger);
+}
+
+.nr .yellow-orb {
+    color: var(--nr-warning);
+}
+
+.nr .blue-orb {
+    color: var(--nr-info);
+}
+
+.nr .grey-orb {
+    color: var(--nr-faint);
+}
+
+.nr ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.nr ::-webkit-scrollbar-thumb {
+    background-color: var(--nr-border-strong);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background-clip: padding-box;
+}
+
+.nr ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--nr-faint);
+}
+
+.nr ::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* 5. Header, navigation, footer --------------------------------------- */
+
+.nr #header {
+    background-color: var(--nr-surface);
+    color: var(--nr-text);
+    border-bottom: 1px solid var(--nr-border);
+}
+
+/* Hook for the Vue header (unraid-header-os-version, user profile) */
+.nr {
+    --header-text-primary: var(--nr-text);
+    --header-text-secondary: var(--nr-muted);
+    --header-background-color: var(--nr-surface);
+    --header-gradient-start: transparent;
+    --header-gradient-end: var(--nr-surface);
+    --color-header-text-primary: var(--nr-text);
+    --color-header-text-secondary: var(--nr-muted);
+    --color-header-background: var(--nr-surface);
+    --color-header-gradient-start: transparent;
+    --color-header-gradient-end: var(--nr-surface);
+    --header-text-color: var(--nr-text);
+    --inverse-text-color: var(--nr-text);
+}
+
+.nr.Theme--nav-top #menu {
+    background-color: var(--nr-nav-glass);
+    -webkit-backdrop-filter: saturate(1.6) blur(14px);
+    backdrop-filter: saturate(1.6) blur(14px);
+    border-bottom: 1px solid var(--nr-border);
+    padding: 0 1.6rem;
+    box-sizing: border-box;
+}
+
+.nr.Theme--nav-top .nav-tile {
+    background-color: transparent;
+    font-size: 1.35rem;
+    letter-spacing: 0;
+    height: 4.8rem;
+    min-height: 4.8rem;
+    line-height: normal;
+    align-items: stretch;
+    gap: .2rem;
+    scrollbar-width: none;
+}
+
+.nr.Theme--nav-top .nav-item {
+    padding: 0 .2rem;
+}
+
+.nr.Theme--nav-top .nav-item a {
+    color: var(--nr-muted);
+    font-weight: 500;
+    text-transform: none;
+    padding: .6rem 1.1rem;
+    border-radius: var(--nr-radius);
+    line-height: 2rem;
+    transition: color var(--nr-fast) var(--nr-ease), background-color var(--nr-fast) var(--nr-ease);
+}
+
+.nr.Theme--nav-top .nav-item a:hover,
+.nr.Theme--nav-top .nav-item a:focus-visible {
+    color: var(--nr-text);
+    background-color: var(--nr-surface-3);
+    text-decoration: none;
+}
+
+.nr.Theme--nav-top .nav-item.active a {
+    color: var(--nr-text);
+    font-weight: 600;
+}
+
+/* The stock 32px underline becomes a full-width indicator on the bar edge */
+.nr.Theme--nav-top .nav-item::after {
+    top: auto;
+    bottom: -1px;
+    width: calc(100% - 1.6rem);
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    transform: translateX(-50%);
+    background: transparent;
+}
+
+.nr.Theme--nav-top .nav-item:hover::after,
+.nr.Theme--nav-top .nav-item:focus::after {
+    background: transparent;
+}
+
+.nr.Theme--nav-top .nav-item.active::after {
+    background: var(--nr-brand-gradient);
+}
+
+/* Right-hand utility icons: square icon buttons */
+.nr.Theme--nav-top .nav-tile.right {
+    align-items: center;
+    gap: .2rem;
+}
+
+.nr.Theme--nav-top .nav-item.util {
+    padding: 0;
+}
+
+.nr.Theme--nav-top .nav-item.util::after {
+    display: none;
+}
+
+.nr.Theme--nav-top .nav-item.util a {
+    display: inline-grid;
+    place-items: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    padding: 0;
+    line-height: 1;
+}
+
+.nr .nav-item .system {
+    font-size: 1.6rem;
+    padding: 0;
+}
+
+/* Light/dark switch (nr.js mounts it inside the hidden-page anchor) */
+.nr .nr-anchor {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    margin: 0 .4rem;
+}
+
+.nr .nr-mode {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 5.2rem;
+    min-width: 0; /* stock buttons force 86px */
+    height: 2.6rem;
+    margin: 0;
+    padding: 0 .6rem;
+    letter-spacing: 0;
+    border: 1px solid var(--nr-border);
+    border-radius: 999px;
+    background: var(--nr-surface-3);
+    box-shadow: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color var(--nr-fast) var(--nr-ease), border-color var(--nr-fast) var(--nr-ease);
+}
+
+.nr .nr-mode:hover {
+    border-color: var(--nr-border-strong);
+}
+
+.nr .nr-mode:focus-visible {
+    outline: none;
+    box-shadow: var(--nr-focus-ring);
+}
+
+.nr .nr-mode i {
+    position: relative;
+    z-index: 1;
+    font-size: 1.15rem;
+    color: var(--nr-faint);
+    transition: color var(--nr-fast) var(--nr-ease);
+}
+
+.nr .nr-mode-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--nr-surface);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .2), 0 0 0 1px var(--nr-border);
+    transition: transform 180ms var(--nr-ease);
+}
+
+.nr .nr-mode[aria-checked="true"] .nr-mode-thumb {
+    /* track width - thumb - both 2px insets - both 1px borders */
+    transform: translateX(calc(5.2rem - 2rem - 6px));
+}
+
+.nr .nr-mode[aria-checked="false"] .fa-sun-o,
+.nr .nr-mode[aria-checked="true"] .fa-moon-o {
+    color: var(--nr-accent-text);
+}
+
+.nr.Theme--sidebar .nr-anchor {
+    justify-content: center;
+    margin: .8rem 0;
+}
+
+/* Array usage pill next to the utility icons */
+.nr #menu .usage-bar {
+    float: none;
+    align-self: center;
+    width: 11rem;
+    height: 2rem;
+    line-height: 2rem;
+    margin: 0 .8rem;
+    padding: 0;
+    border-radius: 999px;
+    background-color: var(--nr-surface-3);
+    box-shadow: inset 0 0 0 1px var(--nr-border);
+    overflow: hidden;
+}
+
+.nr #menu .usage-bar > span {
+    border-radius: 999px;
+    box-shadow: none;
+    color: var(--nr-text);
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding-right: .8rem;
+    box-sizing: border-box;
+    min-width: max-content;
+    font-variant-numeric: tabular-nums;
+}
+
+.nr #menu .usage-bar > span:not(.greenbar, .orangebar, .redbar) {
+    background: color-mix(in srgb, var(--nr-accent) 34%, transparent);
+}
+
+/* nr.js copies the value to data-nr-label: the fill keeps its true width and
+   the label sits centred on the whole pill instead of inside the fill */
+.nr #menu .usage-bar[data-nr-label] {
+    position: relative;
+}
+
+.nr #menu .usage-bar[data-nr-label] > span {
+    min-width: 0;
+    padding: 0;
+    font-size: 0;
+}
+
+.nr #menu .usage-bar[data-nr-label]::after {
+    content: attr(data-nr-label);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--nr-text);
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+}
+
+.nr #menu .usage-bar > span.greenbar {
+    background: color-mix(in srgb, var(--nr-meter-ok) 30%, transparent);
+}
+
+.nr #menu .usage-bar > span.orangebar {
+    background: color-mix(in srgb, var(--nr-meter-warn) 34%, transparent);
+}
+
+.nr #menu .usage-bar > span.redbar {
+    background: color-mix(in srgb, var(--nr-meter-crit) 32%, transparent);
+}
+
+.nr #footer {
+    font-family: var(--nr-font);
+    font-size: 1.2rem;
+    color: var(--nr-muted);
+    background-color: var(--nr-nav-glass);
+    -webkit-backdrop-filter: saturate(1.6) blur(14px);
+    backdrop-filter: saturate(1.6) blur(14px);
+    border-top: 1px solid var(--nr-border);
+    padding: .5rem 1.6rem;
+}
+
+.nr #footer .footer-right,
+.nr #footer #copyright {
+    font-family: var(--nr-font);
+    font-size: 1.2rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.nr #footer a {
+    color: var(--nr-text-2);
+}
+
+.nr .back_to_top,
+.nr .move_to_end {
+    color: var(--nr-muted);
+    bottom: 4.4rem;
+}
+
+/* 6. Page structure --------------------------------------------------- */
+
+.nr #displaybox {
+    padding: 2.4rem 2.4rem 7.2rem;
+}
+
+.nr.Theme--sidebar #displaybox {
+    padding-left: 8.8rem;
+}
+
+.nr.Theme--width-boxed #displaybox {
+    max-width: 1920px; /* same as stock: a narrower box squeezes the Dashboard */
+}
+
+/* Section heading (non-tabbed pages) */
+.nr div.title {
+    background: transparent;
+    border: 0;
+    margin: 3.6rem 0 1.2rem;
+    padding: 0;
+    color: var(--nr-text);
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    gap: 1.2rem;
+}
+
+.nr div.title:first-of-type,
+.nr .title + .title {
+    margin-top: 0;
+}
+
+.nr div.title i.title,
+.nr div.title span.left i {
+    color: var(--nr-muted);
+    margin-right: 1rem;
+    font-size: 1.6rem;
+}
+
+.nr div.title span.status,
+.nr div.title span.right {
+    font-size: 1.3rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--nr-muted);
+}
+
+/* Tabs: underline style on a hairline */
+.nr .tabs {
+    border-bottom: 1px solid var(--nr-border);
+    margin-bottom: .4rem;
+}
+
+.nr .tabs-container {
+    gap: 2rem;
+    scrollbar-width: none;
+}
+
+.nr .tabs button[role="tab"] {
+    border: 0;
+    border-radius: 0;
+    margin: 0;
+    padding: 1.2rem .2rem 1.1rem;
+    min-width: 0;
+    background: none;
+    color: var(--nr-muted);
+    font-family: var(--nr-font);
+    font-size: 1.4rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    opacity: 1;
+    box-shadow: inset 0 -2px 0 transparent;
+    transition: color var(--nr-fast) var(--nr-ease), box-shadow var(--nr-fast) var(--nr-ease);
+}
+
+.nr .tabs button[role="tab"]:hover {
+    color: var(--nr-text);
+    background: none;
+    box-shadow: inset 0 -2px 0 var(--nr-border-strong);
+}
+
+.nr .tabs button[role="tab"][aria-selected="true"] {
+    color: var(--nr-text);
+    background: none;
+    box-shadow: inset 0 -2px 0 var(--nr-accent);
+}
+
+.nr .tabs button[role="tab"] i {
+    color: var(--nr-faint);
+}
+
+.nr .tabs button[role="tab"][aria-selected="true"] i {
+    color: var(--nr-accent-text);
+}
+
+.nr .tab-content {
+    padding-top: 2.4rem;
+}
+
+/* Settings / Tools grids */
+.nr .Panels {
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 1.2rem;
+    margin: 1.2rem 0 2.4rem;
+}
+
+.nr .Panel {
+    max-width: none;
+}
+
+.nr .Panel a {
+    height: 100%;
+    box-sizing: border-box;
+    align-content: start;
+    justify-items: center;
+    gap: 1.2rem;
+    padding: 2rem 1.2rem 1.6rem;
+    color: var(--nr-text);
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-lg);
+    box-shadow: var(--nr-shadow-xs);
+    transition: border-color var(--nr-fast) var(--nr-ease), box-shadow var(--nr-fast) var(--nr-ease), transform var(--nr-fast) var(--nr-ease);
+}
+
+.nr .Panel a > span {
+    display: grid;
+    place-items: center;
+    width: 4.4rem;
+    height: 4.4rem;
+    border-radius: var(--nr-radius-lg);
+    background-color: var(--nr-surface-2);
+    box-shadow: inset 0 0 0 1px var(--nr-border);
+}
+
+.nr .Panel:hover a,
+.nr .Panel a:focus-visible {
+    border-color: var(--nr-border-strong);
+    box-shadow: var(--nr-shadow-md);
+    transform: translateY(-1px);
+}
+
+.nr .Panel:hover .PanelText,
+.nr .Panel:focus .PanelText {
+    text-decoration: none;
+}
+
+.nr .PanelIcon {
+    font-size: 2.2rem;
+    color: var(--nr-text-2);
+}
+
+.nr .Panel:hover .PanelIcon {
+    color: var(--nr-accent-text);
+}
+
+/* "Add to favorites" heart: Settings.page appends it inside the icon box, so
+   pin it to the card corner instead of letting it sit on the icon */
+.nr .Panel i.favo {
+    top: .8rem;
+    right: .8rem;
+    left: auto;
+    margin: 0;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--nr-faint);
+    transition: color var(--nr-fast) var(--nr-ease);
+}
+
+.nr .Panel i.favo:hover {
+    color: var(--nr-accent);
+}
+
+.nr .PanelImg {
+    max-width: 2.6rem;
+    height: 2.6rem;
+}
+
+.nr .PanelText {
+    font-size: 1.3rem;
+    font-weight: 500;
+    line-height: 1.35;
+    text-wrap: balance;
+}
+
+/* Definition-list forms */
+.nr dl {
+    padding: .8rem 0;
+}
+
+@media (min-width: 769px) {
+    .nr dl {
+        gap: 1.4rem 2.4rem;
+    }
+}
+
+.nr dt {
+    font-weight: 500;
+    color: var(--nr-text-2);
+}
+
+.nr dd {
+    color: var(--nr-text);
+}
+
+.nr .input-instructions {
+    font-style: normal;
+    font-size: 1.25rem;
+    color: var(--nr-muted);
+    opacity: 1;
+}
+
+/* Inline help blocks and notes */
+.nr blockquote {
+    max-width: 100ch;
+    margin: 1.2rem 0;
+    padding: 1.2rem 1.6rem;
+    color: var(--nr-text-2);
+    background-color: var(--nr-info-soft);
+    border: 1px solid color-mix(in srgb, var(--nr-info) 22%, transparent);
+    border-radius: var(--nr-radius);
+    font-size: 1.3rem;
+    line-height: 1.6;
+}
+
+.nr blockquote a {
+    color: var(--nr-accent-text);
+}
+
+.nr blockquote > p:first-child {
+    margin-top: 0;
+}
+
+.nr blockquote > p:last-child {
+    margin-bottom: 0;
+}
+
+/* Inline help sits under the field it explains (same column as <dd>) */
+@media (min-width: 769px) {
+    .nr .content blockquote.inline_help {
+        margin-left: calc(35% + 2.4rem);
+        max-width: 72ch;
+    }
+}
+
+.nr .shade {
+    background-color: var(--nr-surface-2);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-lg);
+}
+
+.nr div.up {
+    border-color: var(--nr-border);
+    border-radius: var(--nr-radius);
+}
+
+/* 7. Controls --------------------------------------------------------- */
+
+/* Buttons: one neutral style. Only the real primary actions (Apply, Start,
+   save share/user, confirm in dialogs) get the brand fill. */
+.nr :is(input[type="button"], input[type="reset"], input[type="submit"], button, a.button):where(:not(.unapi *)):not([role="tab"], [role="switch"]) {
+    font-family: var(--nr-font);
+    font-size: 1.3rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1;
+    min-width: 0;
+    height: var(--nr-control-h);
+    padding: 0 1.4rem;
+    color: var(--nr-text);
+    background: var(--nr-surface);
+    border: 1px solid var(--nr-border-strong);
+    border-radius: var(--nr-radius);
+    box-shadow: var(--nr-shadow-xs);
+    box-sizing: border-box;
+    transition: background-color var(--nr-fast) var(--nr-ease), border-color var(--nr-fast) var(--nr-ease), box-shadow var(--nr-fast) var(--nr-ease), filter var(--nr-fast) var(--nr-ease);
+}
+
+.nr a.button:where(:not(.unapi *)) {
+    display: inline-flex;
+    align-items: center;
+}
+
+.nr :is(input[type="button"], input[type="reset"], input[type="submit"], button, a.button):where(:not(.unapi *)):not([role="tab"], [role="switch"]):hover {
+    color: var(--nr-text);
+    background: var(--nr-surface-2);
+    border-color: var(--nr-faint);
+    text-decoration: none;
+}
+
+.nr :is(input[type="button"], input[type="reset"], input[type="submit"], button, a.button):where(:not(.unapi *)):not([role="tab"], [role="switch"]):active {
+    background: var(--nr-surface-3);
+    box-shadow: none;
+}
+
+.nr :is(input[type="button"], input[type="reset"], input[type="submit"], button, a.button):where(:not(.unapi *)):not([role="tab"], [role="switch"]):focus-visible {
+    outline: none;
+    border-color: var(--nr-accent);
+    box-shadow: var(--nr-focus-ring);
+}
+
+.nr :is(input[type="submit"]:is([name="#apply"], [name="cmdStart"], #cmdStart, [name^="change"], [name="cmdEditShare"], [name="cmdUserEdit"]), .sweet-alert button.confirm, .ui-dialog-buttonset button:first-child):where(:not(.unapi *)) {
+    color: #fff;
+    font-weight: 600;
+    background: var(--nr-primary-gradient);
+    border-color: transparent;
+    box-shadow: 0 1px 2px rgba(180, 40, 20, .25), inset 0 1px 0 rgba(255, 255, 255, .16);
+}
+
+.nr :is(input[type="submit"]:is([name="#apply"], [name="cmdStart"], #cmdStart, [name^="change"], [name="cmdEditShare"], [name="cmdUserEdit"]), .sweet-alert button.confirm, .ui-dialog-buttonset button:first-child):where(:not(.unapi *)):hover {
+    color: #fff;
+    background: var(--nr-primary-gradient) !important;
+    border-color: transparent;
+    filter: brightness(1.06);
+}
+
+.nr :is(input[type="button"], input[type="reset"], input[type="submit"], button, a.button):where(:not(.unapi *)):not([role="tab"], [role="switch"]):is([disabled], [disabled]:hover, [disabled]:active) {
+    color: var(--nr-faint) !important;
+    background: var(--nr-surface-2) !important;
+    border-color: var(--nr-border) !important;
+    box-shadow: none;
+    filter: none;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+/* Text inputs */
+.nr :is(input[type="text"], input[type="password"], input[type="number"], input[type="url"], input[type="email"], input[type="date"], input[type="search"], input[type="file"], textarea, .textarea):where(:not(.unapi *)) {
+    font-family: var(--nr-font);
+    font-size: 1.35rem;
+    color: var(--nr-text);
+    min-height: var(--nr-control-h);
+    line-height: 2rem;
+    padding: .6rem 1rem;
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border-strong);
+    border-radius: var(--nr-radius);
+    box-shadow: var(--nr-shadow-xs);
+    transition: border-color var(--nr-fast) var(--nr-ease), box-shadow var(--nr-fast) var(--nr-ease);
+}
+
+.nr :is(input[type="text"], input[type="password"], input[type="number"], input[type="url"], input[type="email"], input[type="date"], input[type="search"], textarea):where(:not(.unapi *)):hover {
+    border-color: var(--nr-faint);
+}
+
+.nr :is(input[type="text"], input[type="password"], input[type="number"], input[type="url"], input[type="email"], input[type="date"], input[type="search"], input[type="file"], textarea, select):where(:not(.unapi *)):focus {
+    background-color: var(--nr-surface);
+    border-color: var(--nr-accent);
+    box-shadow: var(--nr-focus-ring);
+    outline: none;
+}
+
+.nr textarea:where(:not(.unapi *)) {
+    line-height: 1.5;
+    padding: .8rem 1rem;
+}
+
+.nr :is(input, textarea, select)[disabled]:where(:not(.unapi *)) {
+    color: var(--nr-muted);
+    background-color: var(--nr-surface-2);
+    border-color: var(--nr-border);
+    box-shadow: none;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+.nr input::placeholder,
+.nr textarea::placeholder {
+    color: var(--nr-faint);
+    opacity: 1;
+}
+
+.nr input::-webkit-input-placeholder {
+    color: var(--nr-faint);
+}
+
+/* Docker autostart delay: a tiny inline field, keep it compact */
+.nr #docker_containers input.wait {
+    width: 4.4rem;
+    min-height: 0;
+    height: 2.6rem;
+    margin: 0 .4rem;
+    padding: 0 .4rem;
+    text-align: center;
+    box-shadow: none;
+}
+
+/* Selects get a real chevron instead of the two-triangle trick */
+.nr select:where(:not(.unapi *)) {
+    font-family: var(--nr-font);
+    font-size: 1.35rem;
+    color: var(--nr-text);
+    height: var(--nr-control-h);
+    padding: 0 3rem 0 1rem;
+    background-color: var(--nr-surface);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238f8a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right .8rem center;
+    background-size: 1.6rem 1.6rem;
+    background-repeat: no-repeat;
+    border: 1px solid var(--nr-border-strong);
+    border-radius: var(--nr-radius);
+    box-shadow: var(--nr-shadow-xs);
+    transition: border-color var(--nr-fast) var(--nr-ease), box-shadow var(--nr-fast) var(--nr-ease);
+}
+
+.nr select:where(:not(.unapi *)):hover {
+    border-color: var(--nr-faint);
+}
+
+.nr select:where(:not(.unapi *)) option {
+    color: var(--nr-text);
+    background-color: var(--nr-surface);
+}
+
+/* Compact inline selects used as filters inside headers and tiles */
+.nr :is(select[name="enter_view"], select[name="enter_share"], select[name="port_select"], select#cpuline, select#netline, table.dashboard select) {
+    height: 2.6rem;
+    font-size: 1.25rem;
+    padding: 0 2.6rem 0 .8rem;
+    background-position: right .5rem center;
+    box-shadow: none;
+}
+
+.nr input[type="checkbox"],
+.nr input[type="radio"] {
+    accent-color: var(--nr-accent);
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.nr span.checkmark {
+    background-color: var(--nr-surface);
+    box-shadow: inset 0 0 0 1px var(--nr-border-strong);
+}
+
+.nr label.checkbox input:checked ~ .checkmark {
+    background-color: var(--nr-accent);
+    box-shadow: inset 0 0 0 4px var(--nr-surface), inset 0 0 0 5px var(--nr-accent);
+}
+
+/* jQuery FileTree (Install Plugin, path pickers): Font Awesome icons
+   instead of the stock 16px PNGs, rounded hover rows */
+.nr ul.jqueryFileTree {
+    font-family: var(--nr-font);
+    font-size: 1.3rem;
+    line-height: 2.6rem;
+}
+
+.nr ul.jqueryFileTree li {
+    position: relative;
+    padding-left: 2.4rem;
+}
+
+.nr .jqueryFileTree li:is(.directory, .expanded, .file, .wait, [class*="ext_"]) {
+    background: none;
+}
+
+.nr ul.jqueryFileTree li::before {
+    position: absolute;
+    top: 0;
+    left: .2rem;
+    width: 1.8rem;
+    font-family: FontAwesome;
+    font-size: 1.4rem;
+    text-align: center;
+    color: var(--nr-muted);
+    content: "\f016"; /* file-o */
+}
+
+.nr ul.jqueryFileTree li.directory::before {
+    color: var(--nr-accent-text);
+    content: "\f07b"; /* folder */
+}
+
+.nr ul.jqueryFileTree li.expanded::before {
+    content: "\f07c"; /* folder-open */
+}
+
+.nr ul.jqueryFileTree li.ext_plg::before {
+    color: var(--nr-accent-text);
+    content: "\f12e"; /* puzzle-piece */
+}
+
+.nr ul.jqueryFileTree li:is(.ext_img, .ext_qcow, .ext_qcow2)::before {
+    content: "\f0a0"; /* hdd-o */
+}
+
+.nr ul.jqueryFileTree li.ext_iso::before {
+    content: "\f192"; /* dot-circle-o */
+}
+
+.nr ul.jqueryFileTree li.wait::before {
+    content: "\f110"; /* spinner */
+    animation: nr-spin 1s linear infinite;
+}
+
+@keyframes nr-spin {
+    to { transform: rotate(360deg); }
+}
+
+.nr ul.jqueryFileTree a {
+    padding: 0 .6rem;
+    color: var(--nr-text-2);
+    border-radius: var(--nr-radius-sm);
+}
+
+.nr ul.jqueryFileTree a:hover {
+    color: var(--nr-text);
+    background: var(--nr-surface-3);
+}
+
+/* select2 (Tailscale and plugin pages): same look as a native select */
+.nr .select2-container--default .select2-selection--single,
+.nr .select2-container--default .select2-selection--multiple {
+    min-height: var(--nr-control-h);
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border-strong);
+    border-radius: var(--nr-radius);
+}
+
+.nr .select2-container--default .select2-selection--single {
+    height: var(--nr-control-h);
+}
+
+.nr .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--nr-text);
+    line-height: calc(var(--nr-control-h) - 2px);
+    padding-left: 1rem;
+}
+
+.nr .select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: var(--nr-faint);
+}
+
+.nr .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: calc(var(--nr-control-h) - 2px);
+    right: .4rem;
+}
+
+.nr .select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-top-color: var(--nr-muted);
+}
+
+.nr .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    border-bottom-color: var(--nr-muted);
+}
+
+.nr .select2-container--default.select2-container--focus .select2-selection,
+.nr .select2-container--default.select2-container--open .select2-selection {
+    border-color: var(--nr-accent);
+    box-shadow: var(--nr-focus-ring);
+}
+
+.nr .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    color: var(--nr-text);
+    background-color: var(--nr-surface-3);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-sm);
+}
+
+.nr .select2-dropdown {
+    color: var(--nr-text);
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius);
+    box-shadow: var(--nr-shadow-md);
+    overflow: hidden;
+}
+
+.nr .select2-container--default .select2-search--dropdown .select2-search__field {
+    color: var(--nr-text);
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border-strong);
+    border-radius: var(--nr-radius-sm);
+}
+
+.nr .select2-container--default .select2-results__option--highlighted[aria-selected],
+.nr .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    color: var(--nr-text);
+    background-color: var(--nr-surface-3);
+}
+
+.nr .select2-container--default .select2-results__option[aria-selected="true"],
+.nr .select2-container--default .select2-results__option--selected {
+    color: var(--nr-accent-text);
+    background-color: var(--nr-accent-soft);
+}
+
+/* jquery.switchbutton -> pill toggle. The plugin JS writes a 25x11 size and
+   the knob position inline (and animates `left`), so the geometry needs
+   !important to win; the knob slides with a CSS transition instead. */
+.nr .switch-button-background {
+    box-sizing: border-box;
+    width: 3.2rem !important;
+    height: 1.8rem !important;
+    margin: .3rem .8rem 0 0 !important;
+    background-color: var(--nr-border-strong);
+    border: 0;
+    border-radius: 999px;
+    transition: background-color var(--nr-fast) var(--nr-ease);
+}
+
+.nr .switch-button-background.checked {
+    background-color: var(--nr-accent);
+}
+
+/* labels_placement "left" puts the label first (Unassigned Devices) */
+.nr .switch-button-label + .switch-button-background {
+    margin-left: .6rem !important;
+}
+
+.nr .switch-button-button {
+    width: 1.4rem !important;
+    height: 1.4rem !important;
+    top: .2rem !important;
+    left: .2rem !important;
+    background-color: #fff;
+    border: 0;
+    border-radius: 999px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+    transition: left var(--nr-fast) var(--nr-ease);
+}
+
+.nr .switch-button-background.checked .switch-button-button {
+    left: 1.6rem !important;
+}
+
+.nr .switch-button-label {
+    margin-top: 0 !important;
+    line-height: 2.4rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--nr-muted);
+}
+
+.nr .switch-button-label.on {
+    color: var(--nr-text);
+}
+
+/* 8. Tables & usage meters -------------------------------------------- */
+
+/* Docker ports/volumes: readmore.js collapses these to a fixed 32px, i.e.
+   two 16px lines; a taller line-height hides the second line */
+.nr .docker_readmore {
+    line-height: 1.6rem;
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear):where(:not(.unapi *)) {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-lg);
+    background-color: var(--nr-surface);
+    box-shadow: var(--nr-shadow-xs);
+    font-variant-numeric: tabular-nums;
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) thead :is(td, th) {
+    height: 3.6rem;
+    line-height: 1.4;
+    padding: 0 1.2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--nr-muted);
+    background-color: var(--nr-surface-2);
+    border-bottom: 1px solid var(--nr-border);
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) thead tr:first-child > :first-child {
+    border-top-left-radius: calc(var(--nr-radius-lg) - 1px);
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) thead tr:first-child > :last-child {
+    border-top-right-radius: calc(var(--nr-radius-lg) - 1px);
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) thead tr {
+    border: 0;
+}
+
+/* Plugin tables (Unassigned Devices) colour the header and stripe rows with
+   selectors stronger than the base rule above; outrank them explicitly */
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) thead tr:first-child > :is(td, th) {
+    color: var(--nr-muted);
+    background-color: var(--nr-surface-2);
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody tr:nth-child(n) {
+    background-color: transparent;
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody td {
+    height: var(--nr-row-h);
+    line-height: 2rem;
+    padding: .6rem 1.2rem;
+    border-bottom: 1px solid var(--nr-border);
+    vertical-align: middle;
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody tr:last-child > td {
+    border-bottom: 0;
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody tr:last-child > td:first-child {
+    border-bottom-left-radius: calc(var(--nr-radius-lg) - 1px);
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody tr:last-child > td:last-child {
+    border-bottom-right-radius: calc(var(--nr-radius-lg) - 1px);
+}
+
+/* No zebra striping; hover carries the row */
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody tr,
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody tr:nth-child(even) {
+    background-color: transparent;
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody tr:not(.tr_last):hover > td {
+    background-color: var(--nr-surface-2);
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody tr.tr_last {
+    border: 0;
+    background-color: var(--nr-surface-2);
+}
+
+.nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear) tbody tr.tr_last > td {
+    font-weight: 600;
+    border-top: 1px solid var(--nr-border);
+    background-color: var(--nr-surface-2);
+}
+
+.nr table.disk_status tr > td:last-child {
+    padding-right: 1.2rem;
+}
+
+.nr table.unraid tbody tr.alert,
+.nr table.unraid tbody tr.alert td {
+    color: var(--nr-danger);
+}
+
+.nr table.unraid tbody tr.warn,
+.nr table.unraid tbody tr.warn td {
+    color: var(--nr-warning);
+}
+
+.nr i.orb {
+    font-size: 1rem;
+    margin: 0 1rem 0 .2rem;
+}
+
+.nr a.view {
+    color: var(--nr-muted);
+}
+
+.nr .TableContainer,
+.nr .TableContainer--no-min-width {
+    border-radius: var(--nr-radius-lg);
+}
+
+/* Meters: label on top, 4px track underneath */
+.nr .usage-disk:not(.sys):not(.mm) {
+    height: 2.4rem;
+    background: linear-gradient(var(--nr-surface-3), var(--nr-surface-3)) left bottom / 100% 4px no-repeat;
+    border-radius: 0;
+}
+
+.nr .usage-disk:not(.sys):not(.mm) > span:first-child {
+    top: auto;
+    bottom: 0;
+    height: 4px;
+    border-radius: 4px;
+}
+
+.nr .usage-disk:not(.sys):not(.mm) > span:last-child {
+    top: 0;
+    display: block;
+    line-height: 2rem;
+    padding-right: 0;
+    text-align: left;
+}
+
+.nr .usage-disk > span:first-child {
+    background-color: var(--nr-accent);
+}
+
+.nr .greenbar {
+    background: var(--nr-meter-ok);
+}
+
+.nr .orangebar {
+    background: var(--nr-meter-warn);
+}
+
+.nr .redbar {
+    background: var(--nr-meter-crit);
+}
+
+.nr .graybar {
+    background: var(--nr-faint);
+}
+
+.nr .usage-disk.sys {
+    height: 6px;
+    border-radius: 999px;
+    background-color: var(--nr-surface-3);
+    overflow: hidden;
+}
+
+/* Stock layout pulls the bar up over the number with a negative margin,
+   which clips the percentage. Put them on one line instead, whatever width
+   class the wrapper has (w18 disks, w36/w72 CPU, w44 GPU, head_bar, ...). */
+.nr span:has(> .usage-disk.sys) {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    box-sizing: border-box;
+    padding-right: 1.6rem;
+}
+
+.nr span.head_bar:has(> .usage-disk.sys) {
+    display: inline-flex;
+    width: 18rem;
+    padding-right: 0;
+    vertical-align: middle;
+}
+
+.nr span:has(> .usage-disk.sys) > span.load {
+    flex: 0 0 3.8rem;
+    width: 3.8rem;
+    text-align: right;
+    font-size: 1.2rem;
+    line-height: 2.2rem;
+}
+
+.nr span:has(> .usage-disk.sys) > .usage-disk.sys {
+    flex: 1 1 auto;
+    min-width: 2rem;
+    margin: 0;
+}
+
+/* Disk utilization columns on the Dashboard are narrow (18%) */
+.nr span.w18:has(> .usage-disk.sys) {
+    gap: .6rem;
+    padding-right: .8rem;
+}
+
+.nr span.w18:has(> .usage-disk.sys) > span.load {
+    flex-basis: 3.4rem;
+    width: 3.4rem;
+}
+
+.nr .usage-disk.sys > span {
+    height: 6px;
+    border-radius: 999px;
+}
+
+.nr .usage-disk.mm {
+    border-radius: 999px;
+    background-color: var(--nr-surface-3);
+}
+
+.nr .usage-disk.mm > span:first-child {
+    border-radius: 999px;
+}
+
+/* Generic usage bar (outside the nav) */
+.nr .usage-bar {
+    border-radius: 999px;
+    background-color: var(--nr-surface-3);
+    box-shadow: inset 0 0 0 1px var(--nr-border);
+}
+
+.nr .usage-bar > span {
+    border-radius: 999px;
+    box-shadow: none;
+}
+
+/* System log colour coding (Tools > System Log, log viewers): the stock
+   pastel line backgrounds become the status tokens' soft tints */
+.nr pre > span:is(.system, .error, .array, .warn, .login),
+.nr span.label:is(.system, .error, .array, .warn, .login) {
+    border-radius: 3px;
+}
+
+.nr :is(pre > span, span.label).system {
+    color: var(--nr-text);
+    background-color: var(--nr-info-soft);
+}
+
+.nr :is(pre > span, span.label).error {
+    color: var(--nr-danger);
+    background-color: var(--nr-danger-soft);
+}
+
+.nr :is(pre > span, span.label).array {
+    color: var(--nr-text);
+    background-color: var(--nr-success-soft);
+}
+
+.nr :is(pre > span, span.label).warn {
+    color: var(--nr-text);
+    background-color: var(--nr-warning-soft);
+}
+
+.nr :is(pre > span, span.label).login {
+    color: var(--nr-text);
+    background-color: var(--nr-accent-soft);
+}
+
+.nr span.label.error label {
+    color: inherit;
+}
+
+/* Users > avatar drop zone */
+.nr #dropbox {
+    background-color: var(--nr-surface-2);
+    border: 1px dashed var(--nr-border-strong);
+    border-radius: var(--nr-radius-lg);
+}
+
+/* 9. Dashboard -------------------------------------------------------- */
+
+.nr #cpuchart,
+.nr #netchart {
+    display: block;
+}
+
+.nr div.frame div.grid {
+    gap: 1.6rem;
+    align-items: start;
+}
+
+/* Stock columns are 1fr, so the widest tile content (CPU rows) steals width
+   from the others; minmax(0, 1fr) keeps them equal as in the stock layout. */
+@media (min-width: 768px) {
+    .nr div.frame div.grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1600px) {
+    .nr div.frame div.grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.nr div.frame div.grid > .tile {
+    min-width: 0;
+}
+
+/* Each <tbody> of a dashboard table is one card */
+.nr table.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    background: transparent;
+    border: 0;
+}
+
+.nr table.dashboard > thead.stopgap {
+    display: none;
+}
+
+.nr table.dashboard > tbody {
+    display: block;
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-lg);
+    box-shadow: var(--nr-shadow-sm);
+    padding: .4rem 0 1.2rem;
+    overflow: hidden;
+}
+
+.nr table.dashboard > tbody > tr {
+    display: block;
+    background: transparent;
+}
+
+.nr table.dashboard > tbody > tr > td {
+    display: flow-root; /* contains the floated w26/w18/... columns like a table cell did */
+    height: auto;
+    line-height: 2.2rem;
+    padding: .3rem 1.8rem;
+    font-size: 1.3rem;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Header row of a card */
+.nr table.dashboard tr:first-child > td {
+    padding: 1.4rem 1.8rem 1rem;
+    font-size: 1.3rem;
+    font-weight: 400;
+}
+
+.nr table.dashboard tr:last-child > td,
+.nr table.dashboard tr.last > td {
+    padding-bottom: .6rem;
+}
+
+.nr .tile-header {
+    align-items: center;
+}
+
+.nr .tile-header-left {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 1.2rem;
+    min-width: 0;
+}
+
+.nr .tile-header-left > i.f32,
+.nr .tile-header-left > i[class^="icon-"] {
+    flex-shrink: 0;
+    display: inline-grid;
+    place-items: center;
+    width: 3.6rem;
+    height: 3.6rem;
+    margin: 0;
+    font-size: 1.8rem !important;
+    color: var(--nr-accent-text);
+    background-color: var(--nr-accent-soft);
+    border-radius: 1rem;
+}
+
+.nr table.dashboard td div.section {
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--nr-muted);
+    min-width: 0;
+}
+
+.nr table.dashboard td div.section span {
+    color: var(--nr-muted);
+}
+
+.nr .tile-header-main {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -.01em;
+    text-transform: none;
+    color: var(--nr-text);
+    margin: 0 0 .1rem;
+}
+
+.nr .tile-header-right {
+    align-items: center;
+    gap: .4rem;
+}
+
+.nr .tile-header-right-controls {
+    gap: .2rem;
+}
+
+.nr table.dashboard .control:not(.tile),
+.nr .tile-header-right-controls i:not(.tile) {
+    display: inline-grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    font-size: 1.5rem !important;
+    color: var(--nr-muted);
+    background: transparent;
+    border-radius: var(--nr-radius);
+    opacity: 1;
+    transition: background-color var(--nr-fast) var(--nr-ease), color var(--nr-fast) var(--nr-ease);
+}
+
+.nr table.dashboard .control:hover,
+.nr .tile-header-right-controls a:hover i {
+    color: var(--nr-text);
+    background-color: var(--nr-surface-3);
+    opacity: 1;
+}
+
+/* Start/stop, sleep, reboot, power */
+.nr .tile-ctrl {
+    gap: .2rem !important;
+    height: 2rem;
+    margin-right: .4rem;
+    padding-right: .6rem;
+    border-right: 1px solid var(--nr-border);
+}
+
+.nr table.dashboard div.rightside {
+    margin-top: .8rem;
+}
+
+.nr .tile-ctrl > span.fa {
+    display: inline-grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.7rem !important;
+    color: var(--nr-muted);
+    border-radius: var(--nr-radius);
+    transition: background-color var(--nr-fast) var(--nr-ease), color var(--nr-fast) var(--nr-ease);
+}
+
+.nr .tile-ctrl > span.fa.hand:hover {
+    color: var(--nr-text);
+    background-color: var(--nr-surface-3);
+}
+
+.nr .tile-ctrl > span.fa-power-off.hand:hover {
+    color: var(--nr-danger);
+    background-color: var(--nr-danger-soft);
+}
+
+.nr span.header,
+.nr tr.header,
+.nr table.dashboard tr.header > td {
+    font-size: 1.05rem !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--nr-faint);
+}
+
+.nr table.dashboard tr.header > td {
+    padding-top: 1rem;
+    padding-bottom: .4rem;
+    margin-top: .4rem;
+    border-top: 1px solid var(--nr-border);
+}
+
+.nr #current_time {
+    font-size: 3.4rem;
+    font-weight: 600;
+    letter-spacing: -.025em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.nr #current_date {
+    font-size: 1.3rem;
+    color: var(--nr-muted);
+}
+
+.nr span.ampm {
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--nr-muted);
+    margin-left: .2rem;
+}
+
+.nr i.ups,
+.nr i.indent {
+    color: var(--nr-faint);
+}
+
+.nr table.dashboard span.load {
+    color: var(--nr-text-2);
+}
+
+/* System tile: memory figures, legend and usage rings */
+.nr .tile-system-memory-body {
+    gap: 2rem;
+    align-items: center;
+}
+
+.nr .tile-system-memory-labels > div {
+    line-height: 2.2rem;
+}
+
+.nr .tile-system-memory-labels legend {
+    margin-bottom: .4rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--nr-faint);
+}
+
+.nr #dynamic i.fa-circle {
+    margin-right: .6rem;
+    font-size: 1rem;
+    vertical-align: middle;
+}
+
+.nr .tile-system-memory-charts {
+    gap: 1.6rem 1rem;
+}
+
+.nr .tile-system-memory-charts > span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .8rem;
+}
+
+.nr .tile-system-memory-charts a.info {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--nr-muted);
+}
+
+/* Rings: thin track, soft glow, a slightly lit centre */
+.nr div.pie {
+    position: relative;
+    width: 9.2rem;
+    height: 9.2rem;
+    margin: 0 auto;
+    filter: drop-shadow(0 0 .8rem color-mix(in srgb, var(--nr-accent) 16%, transparent));
+}
+
+.nr div.pie::after {
+    width: calc(100% - 1.6rem);
+    height: calc(100% - 1.6rem);
+    background: radial-gradient(circle at 50% 30%, var(--nr-surface-2), var(--nr-surface) 70%);
+    box-shadow: inset 0 1px 2px color-mix(in srgb, var(--nr-text) 8%, transparent);
+}
+
+.nr div.pie span {
+    font-size: 1.7rem;
+    font-weight: 650;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.nr i#mycase {
+    color: var(--nr-text-2);
+}
+
+.nr table.dashboard td.none {
+    color: var(--nr-muted);
+    padding-top: 1.2rem;
+}
+
+/* Shares and Users tiles: icon in a soft badge, name in text colour */
+.nr table.dashboard :is(tr.share, tr.user) > td {
+    padding-top: .4rem;
+    padding-bottom: .4rem;
+}
+
+/* Columns keep their stock widths (w26/w44/w18); only the alignment moves */
+.nr table.dashboard :is(tr.share, tr.user) > td > span {
+    vertical-align: middle;
+}
+
+.nr table.dashboard :is(tr.share, tr.user) span.w26 {
+    display: inline-flex;
+    align-items: center;
+    gap: .8rem;
+    box-sizing: border-box;
+    padding-right: .8rem;
+}
+
+.nr table.dashboard :is(tr.share, tr.user) span.w26 > i[class^="icon-"] {
+    display: inline-grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--nr-accent-text);
+    background-color: var(--nr-accent-soft);
+    border-radius: var(--nr-radius-sm);
+}
+
+.nr table.dashboard :is(tr.share, tr.user) span.w26 > a,
+.nr table.share_status tbody td:first-child > a:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+    color: var(--nr-text);
+    text-decoration: none;
+}
+
+.nr table.dashboard :is(tr.share, tr.user) span.w26 > a:hover,
+.nr table.share_status tbody td:first-child > a:last-child:hover {
+    color: var(--nr-accent-text);
+}
+
+/* Shares page: the "view" tab icon and the protection orb sit quietly before the name */
+.nr table.share_status tbody td:first-child > a {
+    vertical-align: middle;
+}
+
+.nr table.share_status tbody td:first-child > a.view i {
+    color: var(--nr-muted);
+}
+
+/* Each app is a card: icon centred on the left, fixed-width text, three per row.
+   VM usage cards (.vmsuse) stack their metrics, so they keep the block flow. */
+.nr span.outer:not(.vmsuse) {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    box-sizing: border-box;
+    margin: 0 .8rem .8rem 0;
+    padding: .6rem .8rem .6rem .6rem;
+    border-radius: var(--nr-radius-lg);
+    transition: background-color var(--nr-fast) var(--nr-ease);
+}
+
+.nr span.outer:not(.vmsuse) > span.hand {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.nr span.outer:not(.vmsuse) > span.hand > .img {
+    display: block;
+    margin: 0;
+}
+
+.nr span.outer:not(.vmsuse) > span.inner {
+    flex: 0 0 12rem;
+    width: 12rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nr span.outer.vmsuse {
+    box-sizing: border-box;
+    margin: 0 .8rem .8rem 0;
+    padding: .8rem 1rem;
+}
+
+.nr span.outer:hover {
+    background-color: var(--nr-surface-2);
+}
+
+.nr span.outer.solid {
+    background-color: var(--nr-surface-2);
+}
+
+.nr span.state {
+    color: var(--nr-muted);
+    font-size: 1.15rem;
+}
+
+.nr .dashboard-sortable {
+    border: 2px dashed var(--nr-border-strong);
+    border-radius: var(--nr-radius-lg);
+    background: transparent;
+}
+
+/* 10. Overlays -------------------------------------------------------- */
+
+.nr .ui-widget-overlay {
+    background: var(--nr-overlay) !important;
+    opacity: 1 !important;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
+.nr .ui-dialog {
+    padding: 0 !important;
+    border: 1px solid var(--nr-border) !important;
+    border-radius: var(--nr-radius-xl) !important;
+    background: var(--nr-surface) !important;
+    box-shadow: var(--nr-shadow-lg);
+    overflow: hidden;
+}
+
+.nr .ui-dialog .ui-dialog-titlebar {
+    padding: 1.6rem 2rem;
+    background: var(--nr-surface) !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--nr-border) !important;
+    border-radius: 0 !important;
+    color: var(--nr-text) !important;
+}
+
+.nr .ui-dialog .ui-dialog-title {
+    font-family: var(--nr-font);
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    text-transform: none;
+}
+
+.nr .ui-dialog .ui-dialog-content {
+    padding: 2rem;
+}
+
+.nr .ui-dialog .ui-dialog-buttonpane {
+    margin: 0 !important;
+    padding: 1.2rem 2rem !important;
+    background: var(--nr-surface-2) !important;
+    border-top: 1px solid var(--nr-border) !important;
+}
+
+.nr .sweet-overlay {
+    background-color: var(--nr-overlay);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
+.nr .sweet-alert {
+    font-family: var(--nr-font);
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-xl);
+    box-shadow: var(--nr-shadow-lg);
+    padding: 2.8rem 2.8rem 2.4rem;
+}
+
+.nr .sweet-alert h2 {
+    color: var(--nr-text);
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -.015em;
+}
+
+.nr .sweet-alert p {
+    color: var(--nr-text-2);
+    font-size: 1.4rem;
+    line-height: 1.55;
+}
+
+.nr pre#swaltext,
+.nr pre#swalbody {
+    background: transparent;
+    border: 0;
+}
+
+/* Hover tooltips (a.info > span) */
+.nr a.info span {
+    font-variant: normal;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    color: var(--nr-text);
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius);
+    box-shadow: var(--nr-shadow-md);
+    padding: .6rem 1rem;
+}
+
+.nr .tooltipster-sidetip .tooltipster-box {
+    background: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius);
+    box-shadow: var(--nr-shadow-md);
+}
+
+.nr .tooltipster-sidetip .tooltipster-content {
+    color: var(--nr-text);
+    font-size: 1.25rem;
+}
+
+.nr .upgrade_notice,
+.nr .ca_element_notice {
+    color: var(--nr-text);
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-left: 3px solid var(--nr-warning);
+    border-radius: var(--nr-radius-lg);
+    box-shadow: var(--nr-shadow-lg);
+    font-size: 1.35rem;
+}
+
+.nr .upgrade_notice.done {
+    border-left-color: var(--nr-success);
+}
+
+.nr .upgrade_notice.alert {
+    border-left-color: var(--nr-danger);
+}
+
+.nr .ui-dropdownchecklist-dropcontainer,
+.nr .awesomplete > ul {
+    border: 1px solid var(--nr-border) !important;
+    border-radius: var(--nr-radius) !important;
+    box-shadow: var(--nr-shadow-md) !important;
+    background: var(--nr-surface) !important;
+}
+
+/* Context menus (ContextJS: Docker/VM icons, device menus) */
+.nr .dropdown-menu {
+    min-width: 18rem;
+    padding: .4rem;
+    font-size: 1.35rem;
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-lg);
+    box-shadow: var(--nr-shadow-lg);
+}
+
+.nr .dropdown-menu .divider {
+    width: auto;
+    margin: .4rem -.4rem;
+    background-color: var(--nr-border);
+    border: 0;
+}
+
+.nr .dropdown-menu a {
+    padding: .3rem 1.6rem .3rem .8rem;
+    line-height: 2.4rem;
+    color: var(--nr-text-2);
+    border-radius: var(--nr-radius-sm);
+}
+
+.nr .dropdown-menu a [class*="fa-"] {
+    color: var(--nr-muted);
+}
+
+.nr .dropdown-menu li > a:hover,
+.nr .dropdown-menu li > a:focus,
+.nr .dropdown-submenu:hover > a {
+    color: var(--nr-text);
+    background: var(--nr-surface-3);
+    filter: none;
+}
+
+.nr .dropdown-menu .active > a,
+.nr .dropdown-menu .active > a:hover {
+    color: var(--nr-accent-text);
+    background: var(--nr-accent-soft);
+    filter: none;
+}
+
+.nr .dropdown-menu .disabled > a,
+.nr .dropdown-menu .disabled > a:hover {
+    color: var(--nr-faint);
+    background: transparent;
+}
+
+.nr .nav-header {
+    padding: .4rem .8rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    color: var(--nr-faint);
+    background: transparent;
+    text-shadow: none;
+}
+
+.nr .dropdown-context:before,
+.nr .dropdown-context-up:before {
+    border-bottom-color: var(--nr-border);
+}
+
+.nr .dropdown-context:after {
+    border-bottom-color: var(--nr-surface);
+}
+
+.nr .dropdown-context-up:before {
+    border-top-color: var(--nr-border);
+}
+
+.nr .dropdown-context-up:after {
+    border-top-color: var(--nr-surface);
+}
+
+.nr .dropdown-submenu > a:after {
+    border-left-color: var(--nr-faint);
+}
+
+/* Community Applications (Apps): its theme file sets these on :root from
+   the Unraid theme, so cards stay light in a forced dark mode; html.nr wins */
+html.nr {
+    --template-background: var(--nr-surface);
+    --template-hover-background: var(--nr-surface-2);
+    --template-favourite: var(--nr-surface-3);
+    --sidebar-background: var(--nr-surface);
+    --sidebar-text: var(--nr-text);
+    --ca-shadow-color: color-mix(in srgb, var(--nr-accent) 30%, transparent);
+}
+
+.nr :is(.ca_holder, .dockerHubHolder) {
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-lg);
+    box-shadow: var(--nr-shadow-xs);
+}
+
+/* CA picks the "Monthly spotlight" badge for the server theme; a light-theme
+   badge on a forced-dark card gets its dark text inverted (glow stays orange) */
+.nr.nr-dark img.spotlightIcon:is([src*="spotlight_white"], [src*="spotlight_azure"]) {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+.nr :is(.ca_holder, .dockerHubHolder):hover {
+    border-color: var(--nr-border-strong);
+    box-shadow: var(--nr-shadow-md);
+}
+
+.nr .ca_homeTemplatesHeader {
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    color: var(--nr-text);
+}
+
+.nr .ca_homeTemplatesLine2 {
+    font-size: 1.35rem;
+    color: var(--nr-muted);
+}
+
+.nr .homeMore {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--nr-accent-text);
+}
+
+/* Sidebar categories: pill on hover. No negative margin to line the text up:
+   .ca_display_area clips overflow and would cut the pill's left side. */
+.nr .caMenuItem {
+    padding: .2rem .8rem;
+    border-radius: var(--nr-radius);
+    transition: background-color var(--nr-fast) var(--nr-ease), color var(--nr-fast) var(--nr-ease);
+}
+
+.nr .caMenuItem.caMenuEnabled:hover {
+    color: var(--nr-text);
+    background-color: var(--nr-surface-3);
+}
+
+/* Info / Support / Install on the cards: the theme's neutral pill.
+   CA forces white text with !important (made for its dark pill). */
+.nr .caButton {
+    color: var(--nr-text-2) !important;
+    background: var(--nr-surface-3);
+    border: 1px solid var(--nr-border);
+    border-radius: 999px;
+    font-weight: 500;
+}
+
+.nr .caButton:hover {
+    color: var(--nr-text) !important;
+    background: var(--nr-border-strong);
+}
+
+/* App popup description boxes share the dark pill styling in CA */
+.nr :is(.popupDescription, .popupRepoDescription) {
+    color: var(--nr-text-2) !important;
+    background: var(--nr-surface-2);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-lg);
+}
+
+.nr :is(.popupDescription, .popupRepoDescription) * {
+    color: inherit;
+}
+
+/* Popup buttons (Install, Support, Pin, Close) wrap their label in a span/a */
+.nr .caButton :is(span, a, i) {
+    color: inherit !important;
+}
+
+/* The search bar is sticky under the menu; CA assumes the stock 40px menu */
+.nr .searchAreaHolder {
+    padding: 1rem 0;
+    background-color: var(--nr-bg);
+}
+
+.nr.Theme--nav-top .searchAreaHolder {
+    top: 4.9rem;
+}
+
+.nr #searchBox {
+    height: var(--nr-control-h);
+    padding: 0 1rem;
+    color: var(--nr-text);
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border-strong);
+    border-right: 0;
+    border-radius: var(--nr-radius) 0 0 var(--nr-radius);
+}
+
+.nr #searchBox::placeholder {
+    color: var(--nr-faint);
+}
+
+.nr #searchBox:focus {
+    border-color: var(--nr-accent);
+    outline: 0;
+}
+
+/* Field and button on one row; stock puts the button inline on the
+   baseline and pulls it 10px left over the field */
+.nr #searchFilter {
+    display: flex;
+    align-items: flex-start;
+}
+
+.nr .searchSubmit {
+    left: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.6rem;
+    min-width: 3.6rem;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    height: var(--nr-control-h);
+    color: var(--nr-muted);
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border-strong);
+    border-left: 0;
+    border-radius: 0 var(--nr-radius) var(--nr-radius) 0;
+}
+
+/* ZFS Master (Main): its bar is pulled up 45px (with its own stronger rule)
+   to sit on the section title, which is 40px here (28px with the icon
+   buttons + 12px margin); the refresh time follows the title */
+.nr #zfs-master-title {
+    margin-top: -4rem !important;
+}
+
+/* Dataset rows are dense in the stock layout: compact rows, small buttons */
+.nr table.zfs_table tbody td {
+    height: 3.6rem;
+    padding-top: .3rem;
+    padding-bottom: .3rem;
+}
+
+.nr table.zfs_table tbody :is(button, input[type="button"], input[type="submit"]) {
+    height: 2.6rem;
+    min-width: 0;
+    padding: 0 1rem;
+    font-size: 1.2rem;
+}
+
+/* The bar covers the whole title row: let clicks through to the title's own
+   toggle on the right, leave room for it, and keep gear + refresh together */
+.nr #zfs-master-title {
+    box-sizing: border-box;
+    gap: .4rem;
+    padding-right: 3.2rem; /* the title's own 28px toggle + the same gap */
+    pointer-events: none;
+}
+
+.nr #zfs-master-title .zfs_bar_button {
+    display: inline-flex;
+    width: auto;
+    margin: 0;
+    padding: 0;
+}
+
+.nr #zfs-master-title > * {
+    pointer-events: auto;
+}
+
+.nr #zfs-master-title .zfs_bar_text {
+    margin-right: auto;
+    padding-left: 13rem;
+}
+
+.nr #zfsm-last-refresh {
+    display: inline-flex;
+    align-items: center;
+    height: 2.2rem;
+    padding: 0 .8rem;
+    font-size: 1.15rem;
+    font-style: normal;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--nr-muted);
+    background-color: var(--nr-surface-2);
+    border: 1px solid var(--nr-border);
+    border-radius: 999px;
+}
+
+/* Unassigned Devices title bar: gear, refresh and the three switches on one row */
+.nr .rightTitleUD {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .4rem 1.2rem;
+}
+
+.nr .rightTitleUD .ud_titleFix {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+/* Right edge in line with the title icons above */
+.nr .rightTitleUD .switch-button-background {
+    margin-right: 0 !important;
+}
+
+/* Actions in a section title (Main: toggle reads/writes, ZFS Master, UD):
+   the same square icon buttons as the Dashboard tile controls */
+.nr div.title span.right a:has(> i:only-child),
+.nr .zfs_bar_button > a,
+.nr .rightTitleUD .ud_titleFix > a.info:has(> i.fa) {
+    display: inline-grid;
+    place-items: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    color: var(--nr-muted);
+    text-decoration: none;
+    border-radius: var(--nr-radius);
+    transition: color var(--nr-fast) var(--nr-ease), background-color var(--nr-fast) var(--nr-ease);
+}
+
+.nr div.title span.right a:has(> i:only-child):hover,
+.nr .zfs_bar_button > a:hover,
+.nr .rightTitleUD .ud_titleFix > a.info:has(> i.fa):hover {
+    color: var(--nr-text);
+    background-color: var(--nr-surface-3);
+}
+
+.nr div.title span.right a:has(> i:only-child) > i,
+.nr .zfs_bar_button > a > i,
+.nr .rightTitleUD .ud_titleFix > a.info > i.fa {
+    margin: 0;
+    font-size: 1.4rem;
+    color: inherit;
+}
+
+/* Row actions in tables (Unassigned Devices Remove / Settings, and the same
+   links wherever they appear): bordered icon buttons. Only action icons:
+   status icons (orbs, hearts, folders) in the same kind of link stay plain. */
+.nr table td > a:is(.info, .exec):has(> i:is(.fa-remove, .fa-times, .fa-trash, .fa-trash-o, .fa-gear, .fa-gears, .fa-cog, .fa-cogs, .fa-wrench, .fa-pencil, .fa-edit, .fa-sliders)) {
+    display: inline-grid;
+    place-items: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    color: var(--nr-muted);
+    text-decoration: none;
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border-strong);
+    border-radius: var(--nr-radius);
+    transition: color var(--nr-fast) var(--nr-ease), background-color var(--nr-fast) var(--nr-ease), border-color var(--nr-fast) var(--nr-ease);
+}
+
+.nr table td > a:is(.info, .exec):has(> i:is(.fa-remove, .fa-times, .fa-trash, .fa-trash-o, .fa-gear, .fa-gears, .fa-cog, .fa-cogs, .fa-wrench, .fa-pencil, .fa-edit, .fa-sliders)):hover {
+    color: var(--nr-text);
+    background-color: var(--nr-surface-3);
+}
+
+.nr table td > a:is(.info, .exec):has(> i:is(.fa-remove, .fa-times, .fa-trash, .fa-trash-o, .fa-gear, .fa-gears, .fa-cog, .fa-cogs, .fa-wrench, .fa-pencil, .fa-edit, .fa-sliders)) > i.fa {
+    margin: 0;
+    font-size: 1.3rem;
+    color: inherit;
+}
+
+.nr table td > a:is(.info, .exec):has(> i:is(.fa-remove, .fa-times, .fa-trash)) {
+    color: var(--nr-danger);
+}
+
+.nr table td > a:is(.info, .exec):has(> i:is(.fa-remove, .fa-times, .fa-trash)):hover {
+    color: var(--nr-danger);
+    background-color: var(--nr-danger-soft);
+    border-color: color-mix(in srgb, var(--nr-danger) 40%, transparent);
+}
+
+/* 11. Sidebar layouts (gray, azure) ----------------------------------- */
+
+/* A 64px icon rail; hovering an item slides its label out (stock behaviour) */
+.nr.Theme--sidebar #menu {
+    background-color: var(--nr-surface);
+    border-right: 1px solid var(--nr-border);
+    box-shadow: none;
+}
+
+.nr.Theme--sidebar .nav-tile {
+    padding: .4rem 0;
+    gap: .2rem;
+}
+
+.nr.Theme--sidebar .nav-item {
+    width: 64px;
+    border-bottom: 0;
+    background: transparent;
+    overflow: visible;
+}
+
+.nr.Theme--sidebar .nav-item a {
+    position: relative;
+    margin: 0 .8rem;
+    padding: 1rem 1.2rem;
+    gap: 2rem;
+    color: var(--nr-muted);
+    background: transparent;
+    border-radius: var(--nr-radius);
+    font-size: 1.4rem;
+    letter-spacing: 0;
+    transition: color var(--nr-fast) var(--nr-ease), background-color var(--nr-fast) var(--nr-ease);
+}
+
+.nr.Theme--sidebar .nav-item a::before {
+    font-size: 2rem;
+    width: 2.4rem;
+    text-align: center;
+}
+
+.nr.Theme--sidebar .nav-item.util a {
+    padding-left: 1.2rem;
+}
+
+.nr.Theme--sidebar .nav-item.util a::before {
+    font-size: 1.6rem;
+}
+
+.nr.Theme--sidebar .nav-item a span {
+    display: none;
+}
+
+.nr.Theme--sidebar .nav-item:hover {
+    width: auto;
+    background: transparent;
+}
+
+.nr.Theme--sidebar .nav-item:hover a {
+    color: var(--nr-text);
+    background: var(--nr-surface-3);
+    font-size: 1.4rem;
+    padding-right: 1.6rem;
+    box-shadow: var(--nr-shadow-md);
+}
+
+.nr.Theme--sidebar .nav-item:hover a span {
+    display: inline;
+}
+
+.nr.Theme--sidebar .nav-item.active,
+.nr.Theme--sidebar .nav-item.HelpButton.active {
+    background: transparent;
+}
+
+.nr.Theme--sidebar .nav-item.active a,
+.nr.Theme--sidebar .nav-item.HelpButton.active a,
+.nr.Theme--sidebar .nav-item.HelpButton.active a:hover {
+    color: var(--nr-accent-text);
+    background: var(--nr-accent-soft);
+    font-size: 1.4rem;
+}
+
+.nr.Theme--sidebar .nav-item.active a::after {
+    content: "";
+    position: absolute;
+    left: -.8rem;
+    top: 25%;
+    bottom: 25%;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--nr-brand-gradient);
+}
+
+.nr.Theme--sidebar #header {
+    border-bottom: 1px solid var(--nr-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nr *,
+    .nr *::before,
+    .nr *::after {
+        transition-duration: 0s !important;
+        animation-duration: 0s !important;
+    }
+}
