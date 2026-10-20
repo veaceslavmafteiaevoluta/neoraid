@@ -27,7 +27,7 @@ $nr_presets = [
 .nr-swatch{width:2.6rem;height:2.6rem;border-radius:999px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);outline-offset:2px}
 .nr-swatch[aria-checked="true"]{outline:2px solid var(--nr-text,#1c1917)}
 .nr-swatches input[type="color"]{width:4.4rem;height:2.8rem;padding:.2rem;cursor:pointer}
-.nr-accent-value{font-family:var(--nr-mono,monospace);font-size:1.2rem;color:var(--nr-muted,#78716c)}
+.nr-accent-value{font-family:var(--nr-mono,monospace);font-size:1.2rem;color:var(--nr-muted,#716a65)}
 </style>
 
 <form markdown="1" name="nr_settings" method="POST" action="/update.php" target="progressFrame">

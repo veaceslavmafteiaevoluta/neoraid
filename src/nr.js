@@ -18,6 +18,26 @@
   var DEFAULT_ACCENT = '#ff8c2f';
   var cfg = window.nrConfig || {};
 
+  // Accent text must stay readable (WCAG 4.5:1) on the darkest light surface
+  // (--nr-surface-3) and the lightest dark one: start from 72% of the accent
+  // mixed with black or white, and add more black or white while needed.
+  function luminance(rgb) {
+    var c = rgb.map(function (v) {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  function textPct(accent, other, surface) {
+    var a = [1, 3, 5].map(function (i) { return parseInt(accent.substr(i, 2), 16); });
+    var s = luminance(surface);
+    for (var pct = 72; pct > 20; pct -= 2) {
+      var l = luminance(a.map(function (v, i) { return v * pct / 100 + other[i] * (1 - pct / 100); }));
+      if ((Math.max(l, s) + 0.05) / (Math.min(l, s) + 0.05) >= 4.5) break;
+    }
+    return pct;
+  }
+
   // A custom accent recolours every token derived from the brand orange
   function accentCss(accent) {
     if (!/^#[0-9a-f]{6}$/i.test(accent || '') || accent.toLowerCase() === DEFAULT_ACCENT) return '';
@@ -25,13 +45,13 @@
     var dark = 'html.nr.Theme--black:not(.nr-light), html.nr.Theme--gray:not(.nr-light), html.nr.nr-dark';
     return 'html.nr {' +
       '--nr-accent: ' + accent + ';' +
-      '--nr-accent-text: ' + mix(72, '#000') + ';' +
+      '--nr-accent-text: ' + mix(textPct(accent, [0, 0, 0], [239, 238, 236]), '#000') + ';' +
       '--nr-accent-soft: ' + mix(12, 'transparent') + ';' +
       '--nr-focus-ring: 0 0 0 3px ' + mix(32, 'transparent') + ';' +
       '--nr-brand-gradient: linear-gradient(90deg, ' + mix(70, '#000') + ', ' + accent + ');' +
       '--nr-primary-gradient: linear-gradient(180deg, ' + mix(92, '#fff') + ', ' + mix(86, '#000') + ');' +
       '}' + dark + ' {' +
-      '--nr-accent-text: ' + mix(72, '#fff') + ';' +
+      '--nr-accent-text: ' + mix(textPct(accent, [255, 255, 255], [42, 41, 39]), '#fff') + ';' +
       '--nr-accent-soft: ' + mix(14, 'transparent') + ';' +
       '--nr-focus-ring: 0 0 0 3px ' + mix(38, 'transparent') + ';' +
       '}';
@@ -90,12 +110,20 @@
   }
 
   // Vue mounts late and re-applies the server theme, so watch for it. Only
-  // mutations that can touch a scope trigger a sync; our own writes settle
-  // after one pass because syncVue only changes what differs.
+  // mutations that can touch a scope trigger a sync: the Dashboard rewrites
+  // its tables every second, so added nodes count only when they bring a new
+  // .unapi scope. Our own writes settle after one pass because syncVue only
+  // changes what differs.
+  function hasScope(node) {
+    return node.nodeType === 1 && (node.classList.contains('unapi') || !!node.querySelector('.unapi'));
+  }
   function relevant(record) {
     var t = record.target;
     if (t === root || t === document.body) return true;
-    if (record.type === 'childList') return record.addedNodes.length > 0;
+    if (record.type === 'childList') {
+      for (var i = 0; i < record.addedNodes.length; i++) if (hasScope(record.addedNodes[i])) return true;
+      return false;
+    }
     return t.classList && t.classList.contains('unapi');
   }
   // The array usage pill prints its value inside the fill, which is too narrow

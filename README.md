@@ -80,6 +80,10 @@ Personal data (server name, container and VM names, shares, disk serials, IP add
 | `screenshots/` | The images above |
 | `assets/` | Logo |
 
+## AI-assisted development
+
+Neoraid was developed with the help of AI ([Claude Code](https://claude.com/claude-code) by Anthropic), used as a coding assistant for the stylesheet, the script, the build tooling and the documentation. Every change was reviewed, installed and checked by hand on a real Unraid 7.3 server, in light and dark mode, before release. Commits written with AI assistance carry a `Co-Authored-By` trailer.
+
 ## Credits
 
 - [Inter](https://rsms.me/inter/) by Rasmus Andersson, SIL Open Font License 1.1 (`src/fonts/LICENSE-Inter.txt`), embedded in the plugin.

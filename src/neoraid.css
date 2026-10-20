@@ -72,7 +72,7 @@
     --nr-border-strong: #d6d3d1;
     --nr-text: #1c1917;
     --nr-text-2: #44403c;
-    --nr-muted: #78716c;
+    --nr-muted: #716a65;
     --nr-faint: #a8a29e;
 
     --nr-accent: #ff8c2f;
@@ -80,12 +80,12 @@
     --nr-accent-soft: rgba(255, 140, 47, .12);
     --nr-focus-ring: 0 0 0 3px rgba(255, 140, 47, .32);
 
-    --nr-success: #16a34a;
-    --nr-warning: #d97706;
+    --nr-success: #15803d;
+    --nr-warning: #b45309;
     --nr-danger: #dc2626;
     --nr-info: #2563eb;
-    --nr-success-soft: rgba(22, 163, 74, .10);
-    --nr-warning-soft: rgba(217, 119, 6, .10);
+    --nr-success-soft: rgba(21, 128, 61, .10);
+    --nr-warning-soft: rgba(180, 83, 9, .10);
     --nr-danger-soft: rgba(220, 38, 38, .09);
     --nr-info-soft: rgba(37, 99, 235, .08);
 
@@ -1019,6 +1019,37 @@ html.nr .unapi {
     border-radius: var(--nr-radius);
 }
 
+/* VMs > Edit: edit.css colours the CPU pinning boxes and the icon chooser
+   from :root and .Theme--white:root (0,2,0), so html.nr:root is needed */
+html.nr:root {
+    --cpu-box-background: var(--nr-surface-2);
+    --cpu-box-border: var(--nr-border);
+    --add-vm-background: var(--nr-surface);
+    --add-vm-border: var(--nr-border);
+}
+
+.nr :is(.cpu-box, .cpu-box-pair) {
+    border-radius: var(--nr-radius);
+}
+
+.nr :is(.cpu-label, .cpu-label-dual) {
+    color: var(--nr-text-2);
+    font-variant-numeric: tabular-nums;
+}
+
+.nr .cpu-core-indicator-p {
+    color: var(--nr-info);
+}
+
+.nr .cpu-core-indicator-e {
+    color: var(--nr-muted);
+}
+
+/* vDisk path next to "Auto": a fixed --gray-300, unreadable in light mode */
+.nr #vmform .disk_preview {
+    color: var(--nr-muted);
+}
+
 /* 7. Controls --------------------------------------------------------- */
 
 /* Buttons: one neutral style. Only the real primary actions (Apply, Start,
@@ -1689,6 +1720,21 @@ html.nr .unapi {
     border-radius: var(--nr-radius-lg);
 }
 
+/* Users: the stock avatar is a dark silhouette on a transparent background.
+   Give it a round plate; in dark mode invert it, so the silhouette turns
+   light. The filter inverts the plate too: #d0d1d3 lands near surface-3. */
+.nr img.picture[src$="/webGui/images/user.png"] {
+    background-color: var(--nr-surface-3);
+    border-radius: 999px;
+}
+
+.nr.Theme--black:not(.nr-light) img.picture[src$="/webGui/images/user.png"],
+.nr.Theme--gray:not(.nr-light) img.picture[src$="/webGui/images/user.png"],
+.nr.nr-dark img.picture[src$="/webGui/images/user.png"] {
+    background-color: #d0d1d3;
+    filter: invert(1) brightness(.9);
+}
+
 /* 9. Dashboard -------------------------------------------------------- */
 
 .nr #cpuchart,
@@ -1886,7 +1932,7 @@ html.nr .unapi {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .06em;
-    color: var(--nr-faint);
+    color: var(--nr-muted);
 }
 
 .nr table.dashboard tr.header > td {
@@ -1925,6 +1971,20 @@ html.nr .unapi {
     color: var(--nr-text-2);
 }
 
+/* DashStats' fontColor() writes the load colour inline: stock green under
+   the thresholds, orange and red above them. Keep the signal, on tokens. */
+.nr table.dashboard span.load[style*="79, 138, 16"] {
+    color: var(--nr-text-2) !important;
+}
+
+.nr table.dashboard span.load[style*="230, 138, 0"] {
+    color: var(--nr-warning) !important;
+}
+
+.nr table.dashboard span.load[style*="240, 0, 12"] {
+    color: var(--nr-danger) !important;
+}
+
 /* System tile: memory figures, legend and usage rings */
 .nr .tile-system-memory-body {
     gap: 2rem;
@@ -1941,7 +2001,7 @@ html.nr .unapi {
     font-weight: 600;
     letter-spacing: .05em;
     text-transform: uppercase;
-    color: var(--nr-faint);
+    color: var(--nr-muted);
 }
 
 .nr #dynamic i.fa-circle {
@@ -2366,11 +2426,13 @@ html.nr {
     color: var(--nr-muted);
 }
 
+/* CA sets the "Show more" colour with !important (--unraid-66-color, the raw
+   orange, 2:1 on the light background) */
 .nr .homeMore {
     font-size: 1.15rem;
     font-weight: 600;
     letter-spacing: .04em;
-    color: var(--nr-accent-text);
+    color: var(--nr-accent-text) !important;
 }
 
 /* Sidebar categories: pill on hover. No negative margin to line the text up:
@@ -2634,10 +2696,16 @@ html.nr {
     gap: .2rem;
 }
 
+/* The labels are bare text inside the link, not spans: the 64px item has to
+   clip them (stock), or they show cut off and the rail gets scrollbars */
 .nr.Theme--sidebar .nav-item {
     width: 64px;
     border-bottom: 0;
     background: transparent;
+    overflow: hidden;
+}
+
+.nr.Theme--sidebar .nav-item:hover {
     overflow: visible;
 }
 

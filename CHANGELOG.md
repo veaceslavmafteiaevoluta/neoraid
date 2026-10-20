@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026.10.21d
+
+- VM editor: CPU pinning boxes follow the theme in light and dark mode (they stayed light in a forced dark mode), readable core labels, P-core marker in the info colour.
+- Users: the default avatar sits on a round plate and turns light in dark mode.
+- Dashboard: CPU load percentages use the theme colours (neutral, warning and danger above the thresholds) instead of the stock green; tile column headers and memory legend have more contrast.
+- Light mode: secondary text, success and warning colours are slightly darker, so small labels and status text reach a 4.5:1 contrast. The vDisk path in the VM editor and "Show more" in Apps are readable too.
+- Custom accent colours: link and accent text is darkened (light mode) or lightened (dark mode) only as much as needed to reach a 4.5:1 contrast, so light accents such as green or teal stay readable.
+- Sidebar layouts (gray, azure): menu labels no longer show cut off next to the icons, and the rail has no horizontal scrollbars; a label opens only for the hovered item.
+- Faster page script on the Dashboard: the Vue dark-mode sync only runs when a new Vue component appears.
+- Release notes in *Plugins* now come from the changelog.
+
 ## 2026.10.20t
 
 First public release.
