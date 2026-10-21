@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.10.21n
+
+- Docker with folder.view: folder names use the text colour like container names, and the accent colour when the folder has an update.
+- Docker: "apply update" is a plain accent link without the outline, and its icon and the "update ready" one line up with the other rows.
+
 ## 2026.10.21l
 
 - Docker: containers with an update take the accent colour, including the ones marked by folder.view (its highlight was hidden by the theme).

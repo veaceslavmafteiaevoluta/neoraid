@@ -1463,6 +1463,17 @@ html.nr:root {
     color: var(--nr-accent-text);
 }
 
+/* folder.view folder names sit outside .appname; folder.view does not mark
+   them, so a folder with an update is told by its "update ready" pill */
+.nr #docker_containers a.exec.folder-appname {
+    color: var(--nr-text);
+}
+
+.nr #docker_containers tr.folder:has(> td.updatecolumn .fa-flash) a.exec.folder-appname,
+.nr #docker_containers a.exec.folder-appname:hover {
+    color: var(--nr-accent-text);
+}
+
 /* Version column: status in neutral text with a coloured icon, links
    (force update, latest) muted. "not available" keeps the warning colour. */
 .nr #docker_containers .updatecolumn {
@@ -1487,11 +1498,13 @@ html.nr:root {
 }
 
 /* An update: "update ready" / "rebuild ready" (flash icon) as an accent
-   pill, "apply update" as a small neutral button */
+   pill, pulled back by its padding so the icon lines up with the other rows;
+   "apply update" as an accent link */
 .nr #docker_containers .updatecolumn .orange-text:has(> .fa-flash) {
     display: inline-flex;
     align-items: center;
     gap: .2rem;
+    margin-left: -.5rem;
     padding: .1rem .8rem .1rem .5rem;
     font-size: 1.2rem;
     font-weight: 500;
@@ -1502,27 +1515,12 @@ html.nr:root {
 }
 
 .nr #docker_containers .updatecolumn:has(.fa-flash) > a.exec {
-    display: inline-flex;
-    align-items: center;
-    height: 2.4rem;
-    margin-top: .4rem;
-    padding: 0 .8rem 0 .5rem;
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: var(--nr-text);
+    color: var(--nr-accent-text);
     cursor: pointer;
-    background-color: var(--nr-surface);
-    border: 1px solid var(--nr-border-strong);
-    border-radius: var(--nr-radius-sm);
-    transition: background-color var(--nr-fast) var(--nr-ease);
 }
 
 .nr #docker_containers .updatecolumn:has(.fa-flash) > a.exec:hover {
-    background-color: var(--nr-surface-3);
-}
-
-.nr #docker_containers .updatecolumn:has(.fa-flash) > a.exec .fa {
-    color: var(--nr-accent-text);
+    color: var(--nr-text);
 }
 
 /* VMs: the name and the vCPU count (pinning tooltip) read as text too */
