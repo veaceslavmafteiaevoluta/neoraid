@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Plugin>
+  <Name>Neoraid</Name>
+  <Overview>A modern theme for the Unraid 7.3 webGUI that keeps the Unraid palette. Light and dark mode follow Display Settings, with a switch in the navigation bar to change them per browser. Redesigned navigation, tables, forms, dialogs and Dashboard, with Inter as the interface font. Settings → Neoraid sets the accent colour, default mode, density, corners and font, with a live preview. Community Applications, Unassigned Devices, Preclear and ZFS Master get dedicated styles. No system file is changed: removing the plugin restores the stock look.</Overview>
+  <PluginURL>https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg</PluginURL>
+  <PluginAuthor>Veaceslav Maftei</PluginAuthor>
+  <Support>https://github.com/veaceslavmafteiaevoluta/neoraid/issues</Support>
+  <Project>https://github.com/veaceslavmafteiaevoluta/neoraid</Project>
+  <ReadMe>https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/README.md</ReadMe>
+  <Category>Tools:Utilities</Category>
+  <ExtraSearchTerms>theme dark mode light mode webgui skin css</ExtraSearchTerms>
+  <Icon>https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/assets/logo.png</Icon>
+  <License>MIT</License>
+  <Screenshot>https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/screenshots/dashboard-dark.jpg</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/screenshots/dashboard-light.jpg</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/screenshots/accent-blue.jpg</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/screenshots/main-dark.jpg</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/screenshots/docker-dark.jpg</Screenshot>
+  <Screenshot>https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/screenshots/neoraid-settings.jpg</Screenshot>
+</Plugin>

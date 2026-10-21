@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommunityApplications>
+  <Profile>
+**Neoraid** is a modern theme for the Unraid 7.3 webGUI that keeps the Unraid palette: light and dark mode with a switch in the navigation bar, a redesigned Dashboard and accent colour, density, corner and font options in *Settings → Neoraid*. It adds a stylesheet layer on top of the stock theme and changes no system file; removing the plugin restores the stock look.
+
+For bugs and questions open an issue on GitHub: https://github.com/veaceslavmafteiaevoluta/neoraid/issues
+  </Profile>
+  <Icon>https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/assets/logo.png</Icon>
+  <WebPage>https://github.com/veaceslavmafteiaevoluta/neoraid</WebPage>
+</CommunityApplications>

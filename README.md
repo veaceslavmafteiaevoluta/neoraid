@@ -79,6 +79,7 @@ Personal data (server name, container and VM names, shares, disk serials, IP add
 | `src/` | Sources: stylesheet, script, pages, default settings, font |
 | `screenshots/` | The images above |
 | `assets/` | Logo |
+| `ca_profile.xml`, `plugins/neoraid.xml` | Community Applications listing |
 
 ## AI-assisted development
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.10.21e
+
+- Community Applications listing files (`ca_profile.xml`, `plugins/neoraid.xml`), in preparation for the submission to Apps.
+- Stylesheet tidy-up: duplicate ZFS Master and sidebar rules merged, with no visual change.
+
 ## 2026.10.21d
 
 - VM editor: CPU pinning boxes follow the theme in light and dark mode (they stayed light in a forced dark mode), readable core labels, P-core marker in the info colour.

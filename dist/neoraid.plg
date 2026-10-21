@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name    "neoraid">
 <!ENTITY author  "Veaceslav Maftei">
-<!ENTITY version "2026.10.21d">
+<!ENTITY version "2026.10.21e">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg">
 <!ENTITY support "https://github.com/veaceslavmafteiaevoluta/neoraid/issues">
@@ -12,6 +12,11 @@
         pluginURL="&pluginURL;" support="&support;">
 
 <CHANGES>
+###2026.10.21e
+
+- Community Applications listing files (`ca_profile.xml`, `plugins/neoraid.xml`), in preparation for the submission to Apps.
+- Stylesheet tidy-up: duplicate ZFS Master and sidebar rules merged, with no visual change.
+
 ###2026.10.21d
 
 - VM editor: CPU pinning boxes follow the theme in light and dark mode (they stayed light in a forced dark mode), readable core labels, P-core marker in the info colour.
@@ -2773,28 +2778,11 @@ html.nr {
 
 /* ZFS Master (Main): its bar is pulled up 45px (with its own stronger rule)
    to sit on the section title, which is 40px here (28px with the icon
-   buttons + 12px margin); the refresh time follows the title */
-.nr #zfs-master-title {
-    margin-top: -4rem !important;
-}
-
-/* Dataset rows are dense in the stock layout: compact rows, small buttons */
-.nr table.zfs_table tbody td {
-    height: 3.6rem;
-    padding-top: .3rem;
-    padding-bottom: .3rem;
-}
-
-.nr table.zfs_table tbody :is(button, input[type="button"], input[type="submit"]) {
-    height: 2.6rem;
-    min-width: 0;
-    padding: 0 1rem;
-    font-size: 1.2rem;
-}
-
-/* The bar covers the whole title row: let clicks through to the title's own
+   buttons + 12px margin); the refresh time follows the title.
+   The bar covers the whole title row: let clicks through to the title's own
    toggle on the right, leave room for it, and keep gear + refresh together */
 .nr #zfs-master-title {
+    margin-top: -4rem !important;
     box-sizing: border-box;
     gap: .4rem;
     padding-right: 3.2rem; /* the title's own 28px toggle + the same gap */
@@ -2830,6 +2818,20 @@ html.nr {
     background-color: var(--nr-surface-2);
     border: 1px solid var(--nr-border);
     border-radius: 999px;
+}
+
+/* Dataset rows are dense in the stock layout: compact rows, small buttons */
+.nr table.zfs_table tbody td {
+    height: 3.6rem;
+    padding-top: .3rem;
+    padding-bottom: .3rem;
+}
+
+.nr table.zfs_table tbody :is(button, input[type="button"], input[type="submit"]) {
+    height: 2.6rem;
+    min-width: 0;
+    padding: 0 1rem;
+    font-size: 1.2rem;
 }
 
 /* Unassigned Devices title bar: gear, refresh and the three switches on one row */
@@ -2943,6 +2945,8 @@ html.nr {
 }
 
 .nr.Theme--sidebar .nav-item:hover {
+    width: auto;
+    background: transparent;
     overflow: visible;
 }
 
@@ -2975,11 +2979,6 @@ html.nr {
 
 .nr.Theme--sidebar .nav-item a span {
     display: none;
-}
-
-.nr.Theme--sidebar .nav-item:hover {
-    width: auto;
-    background: transparent;
 }
 
 .nr.Theme--sidebar .nav-item:hover a {
