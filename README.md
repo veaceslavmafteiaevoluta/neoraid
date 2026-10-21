@@ -38,7 +38,7 @@ Reload the page. Updates show up in **Plugins → Check for Updates**.
 
 | Option | Values | What it changes |
 | --- | --- | --- |
-| Accent colour | 8 presets or any colour | Active page, links, focus, primary buttons, toggles, usage bars, charts |
+| Accent colour | 8 presets or any colour | Active page, links, focus, primary buttons, toggles, usage bars, charts, the UNRAID logo |
 | Default mode | Follow Display Settings / Light / Dark | The mode every browser starts in; the switch still changes it per browser |
 | Density | Comfortable / Compact | Height of table rows and controls |
 | Corners | Standard / Sharp / Round | Radius of cards, tables, buttons and fields |
@@ -76,7 +76,7 @@ Personal data (server name, container and VM names, shares, disk serials, IP add
 | Path | Contents |
 | --- | --- |
 | `dist/neoraid.plg` | The plugin, a single self-contained file |
-| `src/` | Sources: stylesheet, script, pages, default settings, font |
+| `src/` | Sources: stylesheet, script, pages, default settings, font, Plugins list icon |
 | `screenshots/` | The images above |
 | `assets/` | Logo |
 | `ca_profile.xml`, `plugins/neoraid.xml` | Community Applications listing |

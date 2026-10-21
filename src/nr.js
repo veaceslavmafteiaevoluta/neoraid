@@ -38,6 +38,26 @@
     return pct;
   }
 
+  // Hue (degrees) and HSL saturation of a #rrggbb colour
+  function hueSat(hex) {
+    var c = [1, 3, 5].map(function (i) { return parseInt(hex.substr(i, 2), 16) / 255; });
+    var max = Math.max.apply(null, c), min = Math.min.apply(null, c), d = max - min;
+    var l = (max + min) / 2, h = 0;
+    if (d) {
+      if (max === c[0]) h = ((c[1] - c[2]) / d + 6) % 6;
+      else if (max === c[1]) h = (c[2] - c[0]) / d + 2;
+      else h = (c[0] - c[1]) / d + 4;
+    }
+    return [h * 60, d ? d / (1 - Math.abs(2 * l - 1)) : 0];
+  }
+  // The orange logos (UNRAID wordmark, Plugins list icon) follow the accent:
+  // rotate their hue by the distance from the stock orange, scale saturation
+  function logoFilter(accent) {
+    var from = hueSat(DEFAULT_ACCENT), to = hueSat(accent);
+    var sat = Math.min(1.2, to[1] / from[1]);
+    return 'hue-rotate(' + Math.round(to[0] - from[0]) + 'deg) saturate(' + sat.toFixed(2) + ')';
+  }
+
   // A custom accent recolours every token derived from the brand orange
   function accentCss(accent) {
     if (!/^#[0-9a-f]{6}$/i.test(accent || '') || accent.toLowerCase() === DEFAULT_ACCENT) return '';
@@ -45,6 +65,7 @@
     var dark = 'html.nr.Theme--black:not(.nr-light), html.nr.Theme--gray:not(.nr-light), html.nr.nr-dark';
     return 'html.nr {' +
       '--nr-accent: ' + accent + ';' +
+      '--nr-logo-filter: ' + logoFilter(accent) + ';' +
       '--nr-accent-text: ' + mix(textPct(accent, [0, 0, 0], [239, 238, 236]), '#000') + ';' +
       '--nr-accent-soft: ' + mix(12, 'transparent') + ';' +
       '--nr-focus-ring: 0 0 0 3px ' + mix(32, 'transparent') + ';' +

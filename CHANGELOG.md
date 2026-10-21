@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.10.21k
+
+- A custom accent colour now also tints the UNRAID logo in the header.
+- Plugins: Neoraid shows its own icon, tinted with the accent colour; clicking it opens *Settings → Neoraid*.
+- Docker: container names use the text colour, as on the Dashboard; containers with an update and "update ready" / "apply update" are shown in the info blue.
+- VMs: VM names and vCPU counts use the text colour too.
+- Unassigned Devices: the mount point of remote SMB/NFS shares (pencil + name) no longer turns into a squeezed icon button.
+- Unassigned Devices dialogs (SweetAlert 2) follow the light and dark mode instead of staying white; the protocol picker no longer shows stray squares next to the NFS and SMB icons, and the success icon shown after a removal no longer has a white blob over it.
+
 ## 2026.10.21e
 
 - Community Applications listing files (`ca_profile.xml`, `plugins/neoraid.xml`), in preparation for the submission to Apps.

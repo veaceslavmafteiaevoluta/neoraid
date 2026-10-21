@@ -498,6 +498,12 @@ html.nr .unapi {
     --inverse-text-color: var(--nr-text);
 }
 
+/* The UNRAID wordmark is an SVG image with a fixed red-orange gradient:
+   shift it to a custom accent like our Plugins icon (--nr-logo-filter) */
+.nr unraid-header-os-version a > img {
+    filter: var(--nr-logo-filter, none);
+}
+
 .nr.Theme--nav-top #menu {
     background-color: var(--nr-nav-glass);
     -webkit-backdrop-filter: saturate(1.6) blur(14px);
@@ -1444,6 +1450,48 @@ html.nr:root {
     line-height: 1.6rem;
 }
 
+/* Docker container names read as text, like the Dashboard tiles; an update
+   (stock blue-text on the name, "update ready" with the flash icon) is info
+   blue. "not available" keeps the warning colour. */
+.nr #docker_containers .appname a.exec {
+    color: var(--nr-text);
+}
+
+.nr #docker_containers .appname.blue-text a.exec,
+.nr #docker_containers .updatecolumn .orange-text:has(> .fa-flash),
+.nr #docker_containers .updatecolumn:has(.fa-flash) a.exec {
+    color: var(--nr-info);
+}
+
+.nr #docker_containers .appname a.exec:hover {
+    color: var(--nr-accent-text);
+}
+
+/* "force update" (advanced view) is a secondary action */
+.nr #docker_containers .updatecolumn a.exec {
+    color: var(--nr-muted);
+}
+
+.nr #docker_containers .updatecolumn a.exec:hover {
+    color: var(--nr-text);
+}
+
+/* VMs: the name and the vCPU count (pinning tooltip) read as text too */
+.nr #kvm_table :is(td.vm-name .inner > a, a[class^="vcpu-"]) {
+    color: var(--nr-text);
+}
+
+.nr #kvm_table :is(td.vm-name .inner > a, a[class^="vcpu-"]):hover {
+    color: var(--nr-accent-text);
+}
+
+/* Our own icon in the Plugins list: an app-style tile whose orange follows
+   the accent (--nr-logo-filter, set by nr.js for a custom accent) */
+.nr img.list[src*="/neoraid/images/neoraid.png"] {
+    border-radius: var(--nr-radius);
+    filter: var(--nr-logo-filter, none);
+}
+
 .nr :is(table.unraid, table.tablesorter, table.usb_mounts, table.samba_mounts, table.usb_absent, table.preclear):where(:not(.unapi *)) {
     border-collapse: separate;
     border-spacing: 0;
@@ -2253,6 +2301,95 @@ html.nr:root {
     border: 0;
 }
 
+/* SweetAlert 2.x (.swal-*), used by Unassigned Devices: its injected
+   stylesheet paints a white modal with dark text */
+.nr .swal-overlay {
+    background-color: var(--nr-overlay);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
+.nr .swal-modal {
+    font-family: var(--nr-font);
+    color: var(--nr-text-2);
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-xl);
+    box-shadow: var(--nr-shadow-lg);
+}
+
+.nr .swal-title {
+    color: var(--nr-text);
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -.015em;
+}
+
+.nr :is(.swal-text, .swal-content) {
+    color: var(--nr-text-2);
+    font-size: 1.4rem;
+    line-height: 1.55;
+}
+
+.nr .swal-icon--info {
+    border-color: color-mix(in srgb, var(--nr-info) 45%, transparent);
+}
+
+.nr .swal-icon--info::before,
+.nr .swal-icon--info::after {
+    background-color: var(--nr-info);
+}
+
+/* The success tick is drawn by masking a ring with white pseudo-elements:
+   paint them in the modal surface, or a white blob covers the icon */
+.nr .swal-icon--success::before,
+.nr .swal-icon--success::after,
+.nr .swal-icon--success__hide-corners {
+    background: var(--nr-surface);
+}
+
+.nr .swal-icon--success {
+    border-color: var(--nr-success);
+}
+
+.nr .swal-icon--success__ring {
+    border-color: color-mix(in srgb, var(--nr-success) 30%, transparent);
+}
+
+.nr .swal-icon--success__line {
+    background-color: var(--nr-success);
+}
+
+.nr .swal-icon--warning {
+    border-color: var(--nr-warning);
+}
+
+.nr :is(.swal-icon--warning__body, .swal-icon--warning__dot) {
+    background-color: var(--nr-warning);
+}
+
+.nr .swal-icon--error {
+    border-color: var(--nr-danger);
+}
+
+.nr .swal-icon--error__line {
+    background-color: var(--nr-danger);
+}
+
+.nr .swal-button:focus {
+    box-shadow: var(--nr-focus-ring);
+}
+
+/* UD's protocol picker hides its radios (appearance: none) behind the
+   NFS / SMB images; the theme's field styles would draw them as squares */
+.nr .image-radio input[type="radio"] {
+    width: 0;
+    height: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
 /* Hover tooltips (a.info > span) */
 .nr a.info span {
     font-variant: normal;
@@ -2644,8 +2781,10 @@ html.nr {
 
 /* Row actions in tables (Unassigned Devices Remove / Settings, and the same
    links wherever they appear): bordered icon buttons. Only action icons:
-   status icons (orbs, hearts, folders) in the same kind of link stay plain. */
-.nr table td > a:is(.info, .exec):has(> i:is(.fa-remove, .fa-times, .fa-trash, .fa-trash-o, .fa-gear, .fa-gears, .fa-cog, .fa-cogs, .fa-wrench, .fa-pencil, .fa-edit, .fa-sliders)) {
+   status icons (orbs, hearts, folders) in the same kind of link stay plain.
+   UD's .underline-icon links (pencil + mount point name) carry visible text
+   and are styled below. */
+.nr table td > a:is(.info, .exec):not(.underline-icon):has(> i:is(.fa-remove, .fa-times, .fa-trash, .fa-trash-o, .fa-gear, .fa-gears, .fa-cog, .fa-cogs, .fa-wrench, .fa-pencil, .fa-edit, .fa-sliders)) {
     display: inline-grid;
     place-items: center;
     width: 2.8rem;
@@ -2658,25 +2797,38 @@ html.nr {
     transition: color var(--nr-fast) var(--nr-ease), background-color var(--nr-fast) var(--nr-ease), border-color var(--nr-fast) var(--nr-ease);
 }
 
-.nr table td > a:is(.info, .exec):has(> i:is(.fa-remove, .fa-times, .fa-trash, .fa-trash-o, .fa-gear, .fa-gears, .fa-cog, .fa-cogs, .fa-wrench, .fa-pencil, .fa-edit, .fa-sliders)):hover {
+.nr table td > a:is(.info, .exec):not(.underline-icon):has(> i:is(.fa-remove, .fa-times, .fa-trash, .fa-trash-o, .fa-gear, .fa-gears, .fa-cog, .fa-cogs, .fa-wrench, .fa-pencil, .fa-edit, .fa-sliders)):hover {
     color: var(--nr-text);
     background-color: var(--nr-surface-3);
 }
 
-.nr table td > a:is(.info, .exec):has(> i:is(.fa-remove, .fa-times, .fa-trash, .fa-trash-o, .fa-gear, .fa-gears, .fa-cog, .fa-cogs, .fa-wrench, .fa-pencil, .fa-edit, .fa-sliders)) > i.fa {
+.nr table td > a:is(.info, .exec):not(.underline-icon):has(> i:is(.fa-remove, .fa-times, .fa-trash, .fa-trash-o, .fa-gear, .fa-gears, .fa-cog, .fa-cogs, .fa-wrench, .fa-pencil, .fa-edit, .fa-sliders)) > i.fa {
     margin: 0;
     font-size: 1.3rem;
     color: inherit;
 }
 
-.nr table td > a:is(.info, .exec):has(> i:is(.fa-remove, .fa-times, .fa-trash)) {
+.nr table td > a:is(.info, .exec):not(.underline-icon):has(> i:is(.fa-remove, .fa-times, .fa-trash)) {
     color: var(--nr-danger);
 }
 
-.nr table td > a:is(.info, .exec):has(> i:is(.fa-remove, .fa-times, .fa-trash)):hover {
+.nr table td > a:is(.info, .exec):not(.underline-icon):has(> i:is(.fa-remove, .fa-times, .fa-trash)):hover {
     color: var(--nr-danger);
     background-color: var(--nr-danger-soft);
     border-color: color-mix(in srgb, var(--nr-danger) 40%, transparent);
+}
+
+.nr table td > a.underline-icon {
+    color: var(--nr-text);
+}
+
+.nr table td > a.underline-icon:hover {
+    color: var(--nr-accent-text);
+}
+
+.nr table td > a.underline-icon > i.fa {
+    margin-right: .4rem;
+    color: var(--nr-muted);
 }
 
 /* 11. Sidebar layouts (gray, azure) ----------------------------------- */
