@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.10.21p
+
+- folder.view: the expand button sits next to the folder name instead of below it, and the container previews are no longer cut at the bottom.
+- folder.view folder editor: no bullet points, labels aligned with the other fields, On/Off next to each switch, compact colour reset button, subtle row borders in the container list.
+- Docker: the autostart "wait" field lines up under the switch.
+- Docker, advanced view: the CPU & Memory load column lines up with the rest of the row again (its cells jumped to the top), with percentage and bar on one line as on the Dashboard and memory below.
+
 ## 2026.10.21n
 
 - Docker with folder.view: folder names use the text colour like container names, and the accent colour when the folder has an update.

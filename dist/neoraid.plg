@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name    "neoraid">
 <!ENTITY author  "Veaceslav Maftei">
-<!ENTITY version "2026.10.21n">
+<!ENTITY version "2026.10.21p">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg">
 <!ENTITY support "https://github.com/veaceslavmafteiaevoluta/neoraid/issues">
@@ -12,6 +12,13 @@
         launch="Settings/NeoraidSettings" pluginURL="&pluginURL;" support="&support;">
 
 <CHANGES>
+###2026.10.21p
+
+- folder.view: the expand button sits next to the folder name instead of below it, and the container previews are no longer cut at the bottom.
+- folder.view folder editor: no bullet points, labels aligned with the other fields, On/Off next to each switch, compact colour reset button, subtle row borders in the container list.
+- Docker: the autostart "wait" field lines up under the switch.
+- Docker, advanced view: the CPU &amp; Memory load column lines up with the rest of the row again (its cells jumped to the top), with percentage and bar on one line as on the Dashboard and memory below.
+
 ###2026.10.21n
 
 - Docker with folder.view: folder names use the text colour like container names, and the accent colour when the folder has an update.
@@ -1317,6 +1324,44 @@ html.nr:root {
     color: var(--nr-muted);
 }
 
+/* folder.view folder editor (Docker/VMs > Add Folder): its options sit in a
+   bulleted list, which indents their labels, and its switches and colour
+   reset button live in dd elements that Unraid 7.3 lays out as a column
+   (the On/Off label wraps, the button stretches). Its row borders are an
+   inline copy of the text colour. */
+.nr div.canvas > form:has(input[name="preview_border_color"]) ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nr div.canvas > form:has(input[name="preview_border_color"]) dd:has(> .switch-button-background, > input[type="color"]) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.nr div.canvas > form:has(input[name="preview_border_color"]) dd > input[type="color"] + button {
+    top: 0 !important;
+    margin-left: .8rem !important;
+}
+
+.nr div.canvas > form:has(input[name="preview_border_color"]) table.sortable tr.item {
+    border-color: var(--nr-border) !important;
+}
+
+.nr div.canvas > form:has(input[name="preview_border_color"]) table.sortable :is(th, td) {
+    padding: .6rem 1.2rem;
+}
+
+.nr div.canvas > form:has(input[name="preview_border_color"]) table.sortable td:first-child img {
+    width: 2.4rem;
+    height: 2.4rem;
+    margin-right: 1rem;
+    vertical-align: middle;
+    border-radius: var(--nr-radius-sm);
+}
+
 /* 7. Controls --------------------------------------------------------- */
 
 /* Buttons: one neutral style. Only the real primary actions (Apply, Start,
@@ -1438,12 +1483,24 @@ html.nr:root {
     color: var(--nr-faint);
 }
 
-/* Docker autostart delay: a tiny inline field, keep it compact */
+/* Docker autostart delay: a tiny inline field, keep it compact. Its
+   "wait" line floats right inline (!important), which left it off the
+   switch above: start it under the switch instead */
+.nr #docker_containers span[id$="-wait"] {
+    float: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    margin-top: .6rem;
+    font-size: 1.25rem;
+    color: var(--nr-muted);
+}
+
 .nr #docker_containers input.wait {
     width: 4.4rem;
     min-height: 0;
     height: 2.6rem;
-    margin: 0 .4rem;
+    margin: 0;
     padding: 0 .4rem;
     text-align: center;
     box-shadow: none;
@@ -1735,6 +1792,32 @@ html.nr:root {
     color: var(--nr-accent-text);
 }
 
+/* folder.view rows: the Dashboard card padding on span.outer (section 9)
+   widens the folder name, so the expand button (float: right) wrapped below
+   it, and made the preview items taller than their clipped box */
+.nr #docker_containers tr.folder .folder-name-sub {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+}
+
+.nr #docker_containers tr.folder .folder-outer {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+}
+
+.nr #docker_containers tr.folder .folder-dropdown {
+    flex: none;
+    float: none;
+    margin: 0;
+}
+
+.nr #docker_containers tr.folder .folder-preview span.outer {
+    margin: 0 .4rem 0 0;
+    padding: .2rem .6rem .2rem .2rem;
+}
+
 /* Version column: status in neutral text with a coloured icon, links
    (force update, latest) muted. "not available" keeps the warning colour. */
 .nr #docker_containers .updatecolumn {
@@ -1782,6 +1865,39 @@ html.nr:root {
 
 .nr #docker_containers .updatecolumn:has(.fa-flash) > a.exec:hover {
     color: var(--nr-text);
+}
+
+/* CPU & Memory load column (advanced view): the Basic View toggle writes an
+   inline display: block on the th/td, which takes them out of the table
+   layout (content jumps to the top of the row); !important beats the inline
+   style. Percentage and bar on one line, as on the Dashboard, memory below */
+.nr #docker_containers :is(th, td).advanced[style*="block"] {
+    display: table-cell !important;
+}
+
+.nr #docker_containers td.advanced > span[class^="cpu-"] {
+    display: inline-block;
+    min-width: 4.6rem;
+    color: var(--nr-text-2);
+    font-variant-numeric: tabular-nums;
+}
+
+.nr #docker_containers td.advanced > .usage-disk.mm {
+    display: inline-block;
+    width: 8rem;
+    height: 4px;
+    margin: 0 0 0 .6rem;
+    vertical-align: middle;
+}
+
+.nr #docker_containers td.advanced > .usage-disk.mm > span:first-child {
+    height: 4px;
+}
+
+.nr #docker_containers td.advanced > span[class^="mem-"] {
+    font-size: 1.25rem;
+    color: var(--nr-muted);
+    font-variant-numeric: tabular-nums;
 }
 
 /* VMs: the name and the vCPU count (pinning tooltip) read as text too */
