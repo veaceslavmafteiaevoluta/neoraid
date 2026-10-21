@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name    "neoraid">
 <!ENTITY author  "Veaceslav Maftei">
-<!ENTITY version "2026.10.21k">
+<!ENTITY version "2026.10.21l">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg">
 <!ENTITY support "https://github.com/veaceslavmafteiaevoluta/neoraid/issues">
@@ -12,6 +12,11 @@
         launch="Settings/NeoraidSettings" pluginURL="&pluginURL;" support="&support;">
 
 <CHANGES>
+###2026.10.21l
+
+- Docker: containers with an update take the accent colour, including the ones marked by folder.view (its highlight was hidden by the theme).
+- Docker version column restyled: "up-to-date" in neutral text with a green check, "update ready" as an accent pill, "apply update" as a small button, "force update" and "latest" muted.
+
 ###2026.10.21k
 
 - A custom accent colour now also tints the UNRAID logo in the header.
@@ -1702,29 +1707,78 @@ html.nr:root {
 }
 
 /* Docker container names read as text, like the Dashboard tiles; an update
-   (stock blue-text on the name, "update ready" with the flash icon) is info
-   blue. "not available" keeps the warning colour. */
+   (stock blue-text on the name, folder.view's orange-text on the name and its
+   link) takes the accent, as on hover */
 .nr #docker_containers .appname a.exec {
     color: var(--nr-text);
 }
 
-.nr #docker_containers .appname.blue-text a.exec,
-.nr #docker_containers .updatecolumn .orange-text:has(> .fa-flash),
-.nr #docker_containers .updatecolumn:has(.fa-flash) a.exec {
-    color: var(--nr-info);
-}
-
+.nr #docker_containers .appname:is(.blue-text, .orange-text) a.exec,
+.nr #docker_containers .appname a.exec.orange-text,
 .nr #docker_containers .appname a.exec:hover {
     color: var(--nr-accent-text);
 }
 
-/* "force update" (advanced view) is a secondary action */
+/* Version column: status in neutral text with a coloured icon, links
+   (force update, latest) muted. "not available" keeps the warning colour. */
+.nr #docker_containers .updatecolumn {
+    color: var(--nr-muted);
+}
+
+.nr #docker_containers .updatecolumn > .green-text {
+    color: var(--nr-text-2);
+}
+
+.nr #docker_containers .updatecolumn > .green-text > .fa {
+    color: var(--nr-success);
+}
+
 .nr #docker_containers .updatecolumn a.exec {
     color: var(--nr-muted);
+    text-decoration: none;
 }
 
 .nr #docker_containers .updatecolumn a.exec:hover {
     color: var(--nr-text);
+}
+
+/* An update: "update ready" / "rebuild ready" (flash icon) as an accent
+   pill, "apply update" as a small neutral button */
+.nr #docker_containers .updatecolumn .orange-text:has(> .fa-flash) {
+    display: inline-flex;
+    align-items: center;
+    gap: .2rem;
+    padding: .1rem .8rem .1rem .5rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    line-height: 1.8rem;
+    color: var(--nr-accent-text);
+    background-color: var(--nr-accent-soft);
+    border-radius: 999px;
+}
+
+.nr #docker_containers .updatecolumn:has(.fa-flash) > a.exec {
+    display: inline-flex;
+    align-items: center;
+    height: 2.4rem;
+    margin-top: .4rem;
+    padding: 0 .8rem 0 .5rem;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--nr-text);
+    cursor: pointer;
+    background-color: var(--nr-surface);
+    border: 1px solid var(--nr-border-strong);
+    border-radius: var(--nr-radius-sm);
+    transition: background-color var(--nr-fast) var(--nr-ease);
+}
+
+.nr #docker_containers .updatecolumn:has(.fa-flash) > a.exec:hover {
+    background-color: var(--nr-surface-3);
+}
+
+.nr #docker_containers .updatecolumn:has(.fa-flash) > a.exec .fa {
+    color: var(--nr-accent-text);
 }
 
 /* VMs: the name and the vCPU count (pinning tooltip) read as text too */

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.10.21l
+
+- Docker: containers with an update take the accent colour, including the ones marked by folder.view (its highlight was hidden by the theme).
+- Docker version column restyled: "up-to-date" in neutral text with a green check, "update ready" as an accent pill, "apply update" as a small button, "force update" and "latest" muted.
+
 ## 2026.10.21k
 
 - A custom accent colour now also tints the UNRAID logo in the header.
