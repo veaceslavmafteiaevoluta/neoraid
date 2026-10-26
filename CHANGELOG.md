@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.10.26e
+
+- Dashboard: the "Outbound" legend of the Interface chart uses the accent colour, like its line, instead of the stock orange.
+
 ## 2026.10.26d
 
 - Dashboard: the Virtual Machines Usage cards match the Docker and VM cards (rounded corners, icon next to the name), with the metrics below a divider, full-width usage bars with a visible track, and two cards per row (one in a narrow card).

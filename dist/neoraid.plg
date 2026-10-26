@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name    "neoraid">
 <!ENTITY author  "Veaceslav Maftei">
-<!ENTITY version "2026.10.26d">
+<!ENTITY version "2026.10.26e">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg">
 <!ENTITY support "https://github.com/veaceslavmafteiaevoluta/neoraid/issues">
@@ -12,6 +12,10 @@
         launch="Settings/NeoraidSettings" pluginURL="&pluginURL;" support="&support;">
 
 <CHANGES>
+###2026.10.26e
+
+- Dashboard: the "Outbound" legend of the Interface chart uses the accent colour, like its line, instead of the stock orange.
+
 ###2026.10.26d
 
 - Dashboard: the Virtual Machines Usage cards match the Docker and VM cards (rounded corners, icon next to the name), with the metrics below a divider, full-width usage bars with a visible track, and two cards per row (one in a narrow card).
@@ -2224,6 +2228,12 @@ html.nr:root {
 .nr #cpuchart,
 .nr #netchart {
     display: block;
+}
+
+/* Network legend: nr.js draws the outbound line in the accent, the stock
+   legend is orange-text */
+.nr span:has(> span > #netline) > .view4.orange-text {
+    color: var(--nr-accent-text);
 }
 
 .nr div.frame div.grid {

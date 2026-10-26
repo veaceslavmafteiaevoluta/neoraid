@@ -1946,6 +1946,12 @@ html.nr:root {
     display: block;
 }
 
+/* Network legend: nr.js draws the outbound line in the accent, the stock
+   legend is orange-text */
+.nr span:has(> span > #netline) > .view4.orange-text {
+    color: var(--nr-accent-text);
+}
+
 .nr div.frame div.grid {
     gap: 1.6rem;
     align-items: start;
