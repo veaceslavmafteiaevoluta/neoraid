@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.10.26b
+
+- Dashboard: in a narrow System card (browser zoom, smaller windows) the memory legend moves above the usage rings, so the last ring is no longer cut off. At normal width the layout is unchanged.
+
 ## 2026.10.26a
 
 - Dashboard: Docker and VM cards fill the row and stay three per row at any width, so browser zoom or a narrow column no longer drops one to the next line (two per row in a very narrow card). Long names get more room before they are cut.

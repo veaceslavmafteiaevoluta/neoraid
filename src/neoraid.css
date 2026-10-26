@@ -1990,7 +1990,7 @@ html.nr:root {
     box-shadow: var(--nr-shadow-sm);
     padding: .4rem 0 1.2rem;
     overflow: hidden;
-    container-type: inline-size; /* app cards follow the card width, not the viewport */
+    container-type: inline-size; /* app cards and System rings follow the card width, not the viewport */
 }
 
 .nr table.dashboard > tbody > tr {
@@ -2217,6 +2217,24 @@ html.nr:root {
 
 .nr .tile-system-memory-charts {
     gap: 1.6rem 1rem;
+}
+
+/* Stock picks "legend | four rings" by viewport width; in a narrower card
+   (browser zoom) the last ring was cut, so the legend goes above them */
+@container (max-width: 58rem) {
+    .nr .tile-system-memory-body {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .nr .tile-system-memory-labels {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@container (max-width: 44rem) {
+    .nr .tile-system-memory-charts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 .nr .tile-system-memory-charts > span {
