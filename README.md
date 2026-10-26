@@ -20,7 +20,7 @@ A modern theme for the **Unraid 7.3** webGUI that keeps the Unraid palette. It i
 
 ## Requirements
 
-Unraid **7.3.0** or later (developed and tested on 7.3.3).
+Unraid **7.3.0** or later (developed and tested on 7.3.3 and 7.3.4).
 
 ## Install
 
