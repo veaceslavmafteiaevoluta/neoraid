@@ -2486,6 +2486,12 @@ html.nr:root {
     font-size: 1.15rem;
 }
 
+/* A container with an update: stock (and folder.view) mark the name
+   blue-text; it takes the accent, as on the Docker page */
+.nr #docker_view span.outer > span.inner .blue-text {
+    color: var(--nr-accent-text);
+}
+
 .nr .dashboard-sortable {
     border: 2px dashed var(--nr-border-strong);
     border-radius: var(--nr-radius-lg);

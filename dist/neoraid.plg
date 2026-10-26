@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name    "neoraid">
 <!ENTITY author  "Veaceslav Maftei">
-<!ENTITY version "2026.10.26e">
+<!ENTITY version "2026.10.26f">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg">
 <!ENTITY support "https://github.com/veaceslavmafteiaevoluta/neoraid/issues">
@@ -12,6 +12,10 @@
         launch="Settings/NeoraidSettings" pluginURL="&pluginURL;" support="&support;">
 
 <CHANGES>
+###2026.10.26f
+
+- Dashboard: containers with an update show their name in the accent colour, as on the Docker page, instead of the info blue.
+
 ###2026.10.26e
 
 - Dashboard: the "Outbound" legend of the Interface chart uses the accent colour, like its line, instead of the stock orange.
@@ -2768,6 +2772,12 @@ html.nr:root {
 .nr span.state {
     color: var(--nr-muted);
     font-size: 1.15rem;
+}
+
+/* A container with an update: stock (and folder.view) mark the name
+   blue-text; it takes the accent, as on the Docker page */
+.nr #docker_view span.outer > span.inner .blue-text {
+    color: var(--nr-accent-text);
 }
 
 .nr .dashboard-sortable {

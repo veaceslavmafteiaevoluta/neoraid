@@ -14,7 +14,7 @@ A modern theme for the **Unraid 7.3** webGUI that keeps the Unraid palette. It i
 
 - **Light and dark** — follows *Settings → Display Settings* (white/azure = light, black/gray = dark). A switch in the navigation bar changes it on the fly, for that browser. The Vue header and the notification panel follow it too.
 - **Redesigned webGUI** — navigation, tabs, tables, usage meters, forms, buttons, toggles, menus, dialogs and tooltips, with Inter as the interface font.
-- **Dashboard** — equal columns, tiles as cards, Docker and VM cards, smooth CPU and network charts, thinner RAM rings with a dedicated palette.
+- **Dashboard** — equal columns, tiles as cards, Docker, VM and Virtual Machines Usage cards that fill the row at any browser zoom, smooth CPU and network charts in the accent colour, thinner RAM rings with a dedicated palette.
 - **Settings → Neoraid** — accent colour, default mode for every browser, density, corners, font, switch on or off, with a live preview.
 - **Plugin pages** — Community Applications, Unassigned Devices, Preclear and ZFS Master get dedicated styles; other plugins inherit the theme colours.
 

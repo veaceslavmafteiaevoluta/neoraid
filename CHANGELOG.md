@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.10.26f
+
+- Dashboard: containers with an update show their name in the accent colour, as on the Docker page, instead of the info blue.
+
 ## 2026.10.26e
 
 - Dashboard: the "Outbound" legend of the Interface chart uses the accent colour, like its line, instead of the stock orange.
