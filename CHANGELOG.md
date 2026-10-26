@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.10.26d
+
+- Dashboard: the Virtual Machines Usage cards match the Docker and VM cards (rounded corners, icon next to the name), with the metrics below a divider, full-width usage bars with a visible track, and two cards per row (one in a narrow card).
+
 ## 2026.10.26b
 
 - Dashboard: in a narrow System card (browser zoom, smaller windows) the memory legend moves above the usage rings, so the last ring is no longer cut off. At normal width the layout is unchanged.

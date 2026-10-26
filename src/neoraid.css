@@ -2389,10 +2389,82 @@ html.nr:root {
     }
 }
 
+/* Virtual Machines Usage: same card as the apps (icon + name), metrics below
+   a divider at full width, two per row (one in a narrow card) */
 .nr span.outer.vmsuse {
+    display: inline-grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: .4rem .8rem;
+    vertical-align: top;
     box-sizing: border-box;
+    width: calc(100% / 2 - .81rem);
     margin: 0 .8rem .8rem 0;
-    padding: .8rem 1rem;
+    padding: .6rem 1.1rem .8rem 1rem;
+    border-radius: var(--nr-radius-lg);
+    transition: background-color var(--nr-fast) var(--nr-ease);
+}
+
+.nr span.outer.vmsuse > br {
+    display: none;
+}
+
+.nr span.outer.vmsuse > span.hand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nr span.outer.vmsuse > span.hand > .img {
+    display: block;
+    margin: 0;
+}
+
+.nr span.outer.vmsuse > span.inner {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nr span.outer.vmsuse > span[id^="vmmetrics-"] {
+    grid-column: 1 / -1;
+    font-size: 1.2rem;
+    color: var(--nr-muted);
+}
+
+.nr span.outer.vmsuse > span[id^="vmmetrics-gcpu"] {
+    margin-top: .4rem;
+    padding-top: .8rem;
+    border-top: 1px solid var(--nr-border);
+}
+
+.nr span.outer.vmsuse .advanced {
+    display: block;
+}
+
+.nr span.outer.vmsuse .advanced > span {
+    font-weight: 500;
+    color: var(--nr-text);
+}
+
+/* The card is already --nr-surface-2: the bar track uses the border colour */
+.nr span.outer.vmsuse .usage-disk.mm {
+    display: block;
+    width: 100%;
+    height: 4px;
+    margin: .3rem 0 0;
+    background-color: var(--nr-border);
+}
+
+.nr span.outer.vmsuse .usage-disk.mm > span {
+    height: 4px;
+}
+
+@container (max-width: 30rem) {
+    .nr span.outer.vmsuse {
+        width: calc(100% - .8rem);
+    }
 }
 
 .nr span.outer:hover {
