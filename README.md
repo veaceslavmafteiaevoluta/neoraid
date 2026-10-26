@@ -16,7 +16,7 @@ A modern theme for the **Unraid 7.3** webGUI that keeps the Unraid palette. It i
 - **Redesigned webGUI** — navigation, tabs, tables, usage meters, forms, buttons, toggles, menus, dialogs and tooltips, with Inter as the interface font.
 - **Dashboard** — equal columns, tiles as cards, Docker, VM and Virtual Machines Usage cards that fill the row at any browser zoom, smooth CPU and network charts in the accent colour, thinner RAM rings with a dedicated palette.
 - **Settings → Neoraid** — accent colour, default mode for every browser, density, corners, font, switch on or off, with a live preview.
-- **Plugin pages** — Community Applications, Unassigned Devices, Preclear and ZFS Master get dedicated styles; other plugins inherit the theme colours.
+- **Plugin pages** — Community Applications, Unassigned Devices, Preclear, ZFS Master, folder.view and the Active Streams Dashboard tile get dedicated styles; other plugins inherit the theme colours.
 
 ## Requirements
 
@@ -84,6 +84,15 @@ Personal data (server name, container and VM names, shares, disk serials, IP add
 ## AI-assisted development
 
 Neoraid was developed with the help of AI ([Claude Code](https://claude.com/claude-code) by Anthropic), used as a coding assistant for the stylesheet, the script, the build tooling and the documentation. Every change was reviewed, installed and checked by hand on a real Unraid 7.3 server, in light and dark mode, before release. Commits written with AI assistance carry a `Co-Authored-By` trailer.
+
+## Acknowledgements
+
+Neoraid was inspired by two community projects:
+
+- [Unraid Glass Themes](https://github.com/Wh1t3Rose/Unraid-Themes) by Wh1t3Rose — the main inspiration: the translucent glass touches and the approach of staying faithful to the stock Unraid look.
+- [Aurora Theme](https://github.com/Tunefish92/Aurora-Theme) by Tunefish — the idea of shipping a full webGUI theme as an Unraid plugin, with settings and a light/dark switch.
+
+Neoraid is an independent codebase; no code from either project is included. Thanks to both authors.
 
 ## Credits
 
