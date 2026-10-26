@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.10.26a
+
+- Dashboard: Docker and VM cards fill the row and stay three per row at any width, so browser zoom or a narrow column no longer drops one to the next line (two per row in a very narrow card). Long names get more room before they are cut.
+
 ## 2026.10.21p
 
 - folder.view: the expand button sits next to the folder name instead of below it, and the container previews are no longer cut at the bottom.

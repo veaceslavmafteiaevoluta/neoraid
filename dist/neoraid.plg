@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name    "neoraid">
 <!ENTITY author  "Veaceslav Maftei">
-<!ENTITY version "2026.10.21p">
+<!ENTITY version "2026.10.26a">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg">
 <!ENTITY support "https://github.com/veaceslavmafteiaevoluta/neoraid/issues">
@@ -12,6 +12,10 @@
         launch="Settings/NeoraidSettings" pluginURL="&pluginURL;" support="&support;">
 
 <CHANGES>
+###2026.10.26a
+
+- Dashboard: Docker and VM cards fill the row and stay three per row at any width, so browser zoom or a narrow column no longer drops one to the next line (two per row in a very narrow card). Long names get more room before they are cut.
+
 ###2026.10.21p
 
 - folder.view: the expand button sits next to the folder name instead of below it, and the container previews are no longer cut at the bottom.
@@ -2258,6 +2262,7 @@ html.nr:root {
     box-shadow: var(--nr-shadow-sm);
     padding: .4rem 0 1.2rem;
     overflow: hidden;
+    container-type: inline-size; /* app cards follow the card width, not the viewport */
 }
 
 .nr table.dashboard > tbody > tr {
@@ -2618,6 +2623,24 @@ html.nr:root {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* On the Dashboard the cards fill the row: three per row (two in a narrow
+   card) at any width, so zoom or a third column don't drop one */
+.nr :is(#docker_view, #vm_view) > tr > td > span.outer:not(.vmsuse) {
+    width: calc(100% / 3 - .81rem);
+}
+
+.nr :is(#docker_view, #vm_view) > tr > td > span.outer:not(.vmsuse) > span.inner {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+}
+
+@container (max-width: 44rem) {
+    .nr :is(#docker_view, #vm_view) > tr > td > span.outer:not(.vmsuse) {
+        width: calc(100% / 2 - .81rem);
+    }
 }
 
 .nr span.outer.vmsuse {

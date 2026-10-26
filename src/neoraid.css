@@ -1990,6 +1990,7 @@ html.nr:root {
     box-shadow: var(--nr-shadow-sm);
     padding: .4rem 0 1.2rem;
     overflow: hidden;
+    container-type: inline-size; /* app cards follow the card width, not the viewport */
 }
 
 .nr table.dashboard > tbody > tr {
@@ -2350,6 +2351,24 @@ html.nr:root {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* On the Dashboard the cards fill the row: three per row (two in a narrow
+   card) at any width, so zoom or a third column don't drop one */
+.nr :is(#docker_view, #vm_view) > tr > td > span.outer:not(.vmsuse) {
+    width: calc(100% / 3 - .81rem);
+}
+
+.nr :is(#docker_view, #vm_view) > tr > td > span.outer:not(.vmsuse) > span.inner {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+}
+
+@container (max-width: 44rem) {
+    .nr :is(#docker_view, #vm_view) > tr > td > span.outer:not(.vmsuse) {
+        width: calc(100% / 2 - .81rem);
+    }
 }
 
 .nr span.outer.vmsuse {
