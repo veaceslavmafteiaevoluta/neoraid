@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name    "neoraid">
 <!ENTITY author  "Veaceslav Maftei">
-<!ENTITY version "2026.10.26f">
+<!ENTITY version "2026.10.26g">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg">
 <!ENTITY support "https://github.com/veaceslavmafteiaevoluta/neoraid/issues">
@@ -12,6 +12,10 @@
         launch="Settings/NeoraidSettings" pluginURL="&pluginURL;" support="&support;">
 
 <CHANGES>
+###2026.10.26g
+
+- Dashboard: the Active Streams tile (plugin from Apps) is no longer collapsed to an empty box. Its icon sits on the same plate as the other tiles, its dividers are visible in light mode and its "no servers configured" notice uses the theme warning colour.
+
 ###2026.10.26f
 
 - Dashboard: containers with an update show their name in the accent colour, as on the Docker page, instead of the info blue.
@@ -2299,6 +2303,10 @@ html.nr:root {
     padding: .3rem 1.8rem;
     font-size: 1.3rem;
     font-variant-numeric: tabular-nums;
+    /* Plugin tiles (Active Streams) use the table-cell trick width: 100% +
+       max-width: 0 for ellipsis; on a block it collapses the cell to nothing */
+    width: auto;
+    max-width: none;
 }
 
 /* Header row of a card */
@@ -2336,6 +2344,38 @@ html.nr:root {
     color: var(--nr-accent-text);
     background-color: var(--nr-accent-soft);
     border-radius: 1rem;
+}
+
+/* Plugin tiles with an image icon (Active Streams) get the same plate */
+.nr .tile-header-left > img.icon {
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: 3.6rem;
+    height: 3.6rem;
+    margin: 0;
+    padding: .7rem;
+    object-fit: contain;
+    background-color: var(--nr-accent-soft);
+    border-radius: 1rem;
+}
+
+/* Active Streams: white-alpha dividers (invisible in light mode) and the
+   "no servers" notice, an inline #eebb00, on the tokens */
+.nr .as-header-row {
+    color: var(--nr-muted);
+    border-bottom-color: var(--nr-border);
+}
+
+.nr .as-row {
+    border-bottom-color: var(--nr-border);
+}
+
+.nr .as-row:last-child {
+    border-bottom: none;
+}
+
+.nr #activestreams_streams > div[style*="#eebb00"] {
+    color: var(--nr-warning) !important;
 }
 
 .nr table.dashboard td div.section {

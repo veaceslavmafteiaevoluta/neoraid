@@ -2011,6 +2011,10 @@ html.nr:root {
     padding: .3rem 1.8rem;
     font-size: 1.3rem;
     font-variant-numeric: tabular-nums;
+    /* Plugin tiles (Active Streams) use the table-cell trick width: 100% +
+       max-width: 0 for ellipsis; on a block it collapses the cell to nothing */
+    width: auto;
+    max-width: none;
 }
 
 /* Header row of a card */
@@ -2048,6 +2052,38 @@ html.nr:root {
     color: var(--nr-accent-text);
     background-color: var(--nr-accent-soft);
     border-radius: 1rem;
+}
+
+/* Plugin tiles with an image icon (Active Streams) get the same plate */
+.nr .tile-header-left > img.icon {
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: 3.6rem;
+    height: 3.6rem;
+    margin: 0;
+    padding: .7rem;
+    object-fit: contain;
+    background-color: var(--nr-accent-soft);
+    border-radius: 1rem;
+}
+
+/* Active Streams: white-alpha dividers (invisible in light mode) and the
+   "no servers" notice, an inline #eebb00, on the tokens */
+.nr .as-header-row {
+    color: var(--nr-muted);
+    border-bottom-color: var(--nr-border);
+}
+
+.nr .as-row {
+    border-bottom-color: var(--nr-border);
+}
+
+.nr .as-row:last-child {
+    border-bottom: none;
+}
+
+.nr #activestreams_streams > div[style*="#eebb00"] {
+    color: var(--nr-warning) !important;
 }
 
 .nr table.dashboard td div.section {

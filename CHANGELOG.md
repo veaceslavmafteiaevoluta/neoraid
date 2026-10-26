@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.10.26g
+
+- Dashboard: the Active Streams tile (plugin from Apps) is no longer collapsed to an empty box. Its icon sits on the same plate as the other tiles, its dividers are visible in light mode and its "no servers configured" notice uses the theme warning colour.
+
 ## 2026.10.26f
 
 - Dashboard: containers with an update show their name in the accent colour, as on the Docker page, instead of the info blue.
