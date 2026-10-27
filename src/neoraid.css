@@ -599,7 +599,9 @@ html.nr .unapi {
     padding: 0;
 }
 
-/* Light/dark switch (nr.js mounts it inside the hidden-page anchor) */
+/* Light / system / dark switch (nr.js mounts it inside the hidden-page
+   anchor): three 20px options 4px apart in a pill, the thumb slides under the
+   chosen one */
 .nr .nr-anchor {
     display: flex;
     align-items: center;
@@ -611,37 +613,59 @@ html.nr .unapi {
     position: relative;
     display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    width: 5.2rem;
-    min-width: 0; /* stock buttons force 86px */
+    gap: .4rem;
     height: 2.6rem;
-    margin: 0;
-    padding: 0 .6rem;
-    letter-spacing: 0;
+    padding: 2px;
     border: 1px solid var(--nr-border);
     border-radius: 999px;
     background: var(--nr-surface-3);
-    box-shadow: none;
-    cursor: pointer;
     box-sizing: border-box;
-    transition: background-color var(--nr-fast) var(--nr-ease), border-color var(--nr-fast) var(--nr-ease);
+    transition: border-color var(--nr-fast) var(--nr-ease);
 }
 
 .nr .nr-mode:hover {
     border-color: var(--nr-border-strong);
 }
 
-.nr .nr-mode:focus-visible {
+.nr .nr-mode [role="radio"] {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    color: var(--nr-muted);
+    cursor: pointer;
+    transition: color var(--nr-fast) var(--nr-ease);
+}
+
+.nr .nr-mode [role="radio"]:hover {
+    color: var(--nr-text-2);
+}
+
+.nr .nr-mode [role="radio"]:focus-visible {
     outline: none;
     box-shadow: var(--nr-focus-ring);
 }
 
+.nr .nr-mode [role="radio"][aria-checked="true"] {
+    color: var(--nr-accent-text);
+}
+
+/* Font Awesome glyphs render about 1px above the centre of a flex box
+   (measured on screen, light and dark): nudge them onto the thumb's centre */
 .nr .nr-mode i {
-    position: relative;
-    z-index: 1;
     font-size: 1.15rem;
-    color: var(--nr-faint);
-    transition: color var(--nr-fast) var(--nr-ease);
+    transform: translateY(1px);
+}
+
+/* The monitor glyph is wider and sits higher in its em box than the sun and
+   moon: a touch smaller and lower, so all three share the same centre */
+.nr .nr-mode .fa-desktop {
+    font-size: 1.05rem;
+    transform: translateY(calc(1px + .04em));
 }
 
 .nr .nr-mode-thumb {
@@ -656,19 +680,32 @@ html.nr .unapi {
     transition: transform 180ms var(--nr-ease);
 }
 
-.nr .nr-mode[aria-checked="true"] .nr-mode-thumb {
-    /* track width - thumb - both 2px insets - both 1px borders */
-    transform: translateX(calc(5.2rem - 2rem - 6px));
+/* One step = option + gap */
+.nr .nr-mode[data-nr-choice="system"] .nr-mode-thumb {
+    transform: translateX(2.4rem);
 }
 
-.nr .nr-mode[aria-checked="false"] .fa-sun-o,
-.nr .nr-mode[aria-checked="true"] .fa-moon-o {
-    color: var(--nr-accent-text);
+.nr .nr-mode[data-nr-choice="dark"] .nr-mode-thumb {
+    transform: translateX(4.8rem);
 }
 
 .nr.Theme--sidebar .nr-anchor {
     justify-content: center;
     margin: .8rem 0;
+}
+
+/* The 64px rail has no room for the pill across: stack it */
+.nr.Theme--sidebar .nr-mode {
+    flex-direction: column;
+    height: auto;
+}
+
+.nr.Theme--sidebar .nr-mode[data-nr-choice="system"] .nr-mode-thumb {
+    transform: translateY(2.4rem);
+}
+
+.nr.Theme--sidebar .nr-mode[data-nr-choice="dark"] .nr-mode-thumb {
+    transform: translateY(4.8rem);
 }
 
 /* Array usage pill next to the utility icons */

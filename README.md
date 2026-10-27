@@ -12,7 +12,7 @@ A modern theme for the **Unraid 7.3** webGUI that keeps the Unraid palette. It i
 
 ## Features
 
-- **Light and dark** — follows *Settings → Display Settings* (white/azure = light, black/gray = dark). A switch in the navigation bar changes it on the fly, for that browser. The Vue header and the notification panel follow it too.
+- **Light and dark** — follows *Settings → Display Settings* (white/azure = light, black/gray = dark). A three-way switch in the navigation bar (light, system, dark) changes it on the fly, for that browser; *system* follows the device's light or dark preference. The Vue header and the notification panel follow it too.
 - **Redesigned webGUI** — navigation, tabs, tables, usage meters, forms, buttons, toggles, menus, dialogs and tooltips, with Inter as the interface font.
 - **Dashboard** — equal columns, tiles as cards, Docker, VM and Virtual Machines Usage cards that fill the row at any browser zoom, smooth CPU and network charts in the accent colour, thinner RAM rings with a dedicated palette.
 - **Settings → Neoraid** — accent colour, default mode for every browser, density, corners, font, switch on or off, with a live preview.
@@ -39,11 +39,11 @@ Reload the page. Updates show up in **Plugins → Check for Updates**.
 | Option | Values | What it changes |
 | --- | --- | --- |
 | Accent colour | 8 presets or any colour | Active page, links, focus, primary buttons, toggles, usage bars, charts, the UNRAID logo |
-| Default mode | Follow Display Settings / Light / Dark | The mode every browser starts in; the switch still changes it per browser |
+| Default mode | Follow Display Settings / Light / Dark / Follow the system | The mode every browser starts in; the switch still changes it per browser |
 | Density | Comfortable / Compact | Height of table rows and controls |
 | Corners | Standard / Sharp / Round | Radius of cards, tables, buttons and fields |
 | Font | Inter (included) / System font | Interface typeface |
-| Light/dark switch | Show / Hide | The switch in the navigation bar |
+| Light/dark switch | Show / Hide | The light/system/dark switch in the navigation bar |
 
 Every change previews immediately; **Apply** saves it for all pages and browsers, **Default** restores the initial values. Settings are stored in `/boot/config/plugins/neoraid/neoraid.cfg`.
 

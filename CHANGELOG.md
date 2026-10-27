@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.10.27b
+
+- The light/dark switch in the navigation bar has a third position, "system", that follows the light or dark preference of the device and changes along with it.
+- Settings > Neoraid: the default mode can also follow the system.
+
 ## 2026.10.26g
 
 - Dashboard: the Active Streams tile (plugin from Apps) is no longer collapsed to an empty box. Its icon sits on the same plate as the other tiles, its dividers are visible in light mode and its "no servers configured" notice uses the theme warning colour.

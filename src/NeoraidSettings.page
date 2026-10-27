@@ -50,9 +50,11 @@ _(Default mode)_:
   <?=mk_option($nr['MODE'] ?? 'auto', 'auto', _('Follow Display Settings'))?>
   <?=mk_option($nr['MODE'] ?? 'auto', 'light', _('Light'))?>
   <?=mk_option($nr['MODE'] ?? 'auto', 'dark', _('Dark'))?>
+  <?=mk_option($nr['MODE'] ?? 'auto', 'system', _('Follow the system'))?>
   </select>
 
-> The mode every browser starts in. The switch in the navigation bar still overrides it for one browser.
+> The mode every browser starts in. "Follow the system" uses the light or dark preference of each device.
+> The switch in the navigation bar (light, system, dark) still overrides it for one browser.
 
 _(Density)_:
 : <select name="DENSITY">

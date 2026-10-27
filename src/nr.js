@@ -94,16 +94,23 @@
   applyConfig();
 
   // The Unraid theme picked in Display Settings decides the default,
-  // unless the plugin settings pin a mode for every browser
+  // unless the plugin settings pin a mode for every browser. "system"
+  // follows the OS preference and resolves to nr-dark / nr-light.
+  var MODES = ['light', 'system', 'dark'];
+  var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  var choice = null;
   function stockIsDark() {
     return root.classList.contains('Theme--black') || root.classList.contains('Theme--gray');
   }
   function pinnedMode() {
-    return cfg.mode === 'dark' || cfg.mode === 'light' ? cfg.mode : null;
+    return MODES.indexOf(cfg.mode) >= 0 ? cfg.mode : null;
   }
-  function defaultIsDark() {
-    var pinned = pinnedMode();
-    return pinned ? pinned === 'dark' : stockIsDark();
+  // What the switch shows when this browser made no choice
+  function defaultChoice() {
+    return pinnedMode() || (stockIsDark() ? 'dark' : 'light');
+  }
+  function currentChoice() {
+    return choice || defaultChoice();
   }
   function isDark() {
     if (root.classList.contains('nr-dark')) return true;
@@ -112,7 +119,9 @@
   }
   // mode: this browser's choice from the switch, or null to use the default
   function apply(mode) {
-    mode = mode || pinnedMode();
+    choice = MODES.indexOf(mode) >= 0 ? mode : null;
+    mode = choice || pinnedMode();
+    if (mode === 'system') mode = media && media.matches ? 'dark' : 'light';
     root.classList.remove('nr-dark', 'nr-light');
     if (mode === 'dark' || mode === 'light') root.classList.add('nr-' + mode);
   }
@@ -244,35 +253,70 @@
 
   var refreshSwitch = function () {};
 
+  // Light / system / dark: a radio group of three icons with a sliding thumb.
+  // Spans, not buttons, so the stock and theme button styles stay out.
+  var LABELS = { light: ['sun-o', 'Light mode'], system: ['desktop', 'Follow the system'], dark: ['moon-o', 'Dark mode'] };
+
   function mountSwitch() {
     var anchor = document.querySelector('#menu .nr-anchor');
     if (!anchor || anchor.querySelector('.nr-mode')) return;
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'nr-mode';
-    btn.setAttribute('role', 'switch');
-    btn.innerHTML = '<i class="fa fa-sun-o" aria-hidden="true"></i><span class="nr-mode-thumb"></span><i class="fa fa-moon-o" aria-hidden="true"></i>';
+    var group = document.createElement('div');
+    group.className = 'nr-mode';
+    group.setAttribute('role', 'radiogroup');
+    group.setAttribute('aria-label', 'Colour mode');
+    group.innerHTML = '<span class="nr-mode-thumb"></span>' + MODES.map(function (mode) {
+      return '<span role="radio" data-mode="' + mode + '" title="' + LABELS[mode][1] + '" aria-label="' + LABELS[mode][1] + '">' +
+        '<i class="fa fa-' + LABELS[mode][0] + '" aria-hidden="true"></i></span>';
+    }).join('');
+    var options = group.querySelectorAll('[role="radio"]');
 
     function sync() {
-      var dark = isDark();
-      btn.setAttribute('aria-checked', dark ? 'true' : 'false');
-      btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
-      btn.setAttribute('aria-label', 'Dark mode');
+      var current = currentChoice();
+      group.setAttribute('data-nr-choice', current);
+      for (var i = 0; i < options.length; i++) {
+        var on = options[i].getAttribute('data-mode') === current;
+        options[i].setAttribute('aria-checked', on ? 'true' : 'false');
+        options[i].tabIndex = on ? 0 : -1;
+      }
     }
-    btn.addEventListener('click', function () {
-      var next = isDark() ? 'light' : 'dark';
+    function choose(mode) {
       // Matching the default needs no override: forget the choice
-      var override = (next === 'dark') === defaultIsDark() ? null : next;
+      var override = mode === defaultChoice() ? null : mode;
       apply(override);
       write(override);
       sync();
       syncVue();
       syncCharts();
+    }
+    group.addEventListener('click', function (e) {
+      var option = e.target.closest('[role="radio"]');
+      if (option) choose(option.getAttribute('data-mode'));
+    });
+    // Arrow keys move the selection (and focus), wrapping like native radios
+    group.addEventListener('keydown', function (e) {
+      var i = Array.prototype.indexOf.call(options, e.target);
+      if (i < 0) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') i = (i + 1) % options.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') i = (i + options.length - 1) % options.length;
+      else if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      choose(options[i].getAttribute('data-mode'));
+      options[i].focus();
     });
     sync();
     refreshSwitch = sync;
-    anchor.appendChild(btn);
+    anchor.appendChild(group);
   }
+
+  // "system" follows the OS live: re-resolve when its preference changes
+  function systemChanged() {
+    if ((choice || pinnedMode()) !== 'system') return;
+    apply(choice);
+    syncVue();
+    syncCharts();
+  }
+  if (media && media.addEventListener) media.addEventListener('change', systemChanged);
+  else if (media && media.addListener) media.addListener(systemChanged);
 
   // Live preview for the settings page: apply options without saving them
   window.nrTheme = {

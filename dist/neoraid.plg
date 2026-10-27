@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name    "neoraid">
 <!ENTITY author  "Veaceslav Maftei">
-<!ENTITY version "2026.10.26g">
+<!ENTITY version "2026.10.27b">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg">
 <!ENTITY support "https://github.com/veaceslavmafteiaevoluta/neoraid/issues">
@@ -12,6 +12,11 @@
         launch="Settings/NeoraidSettings" pluginURL="&pluginURL;" support="&support;">
 
 <CHANGES>
+###2026.10.27b
+
+- The light/dark switch in the navigation bar has a third position, "system", that follows the light or dark preference of the device and changes along with it.
+- Settings &gt; Neoraid: the default mode can also follow the system.
+
 ###2026.10.26g
 
 - Dashboard: the Active Streams tile (plugin from Apps) is no longer collapsed to an empty box. Its icon sits on the same plate as the other tiles, its dividers are visible in light mode and its "no servers configured" notice uses the theme warning colour.
@@ -123,7 +128,7 @@ $nr_pick = function($key, $allowed) use ($nr_cfg) {
 $nr_accent = $nr_cfg['ACCENT'] ?? '';
 $nr_config = [
   'accent'  => preg_match('/^#[0-9a-fA-F]{6}$/', $nr_accent) ? strtolower($nr_accent) : '#ff8c2f',
-  'mode'    => $nr_pick('MODE', ['auto', 'light', 'dark']),
+  'mode'    => $nr_pick('MODE', ['auto', 'light', 'dark', 'system']),
   'density' => $nr_pick('DENSITY', ['comfortable', 'compact']),
   'radius'  => $nr_pick('RADIUS', ['standard', 'sharp', 'round']),
   'font'    => $nr_pick('FONT', ['inter', 'system']),
@@ -191,9 +196,11 @@ _(Default mode)_:
   <?=mk_option($nr['MODE'] ?? 'auto', 'auto', _('Follow Display Settings'))?>
   <?=mk_option($nr['MODE'] ?? 'auto', 'light', _('Light'))?>
   <?=mk_option($nr['MODE'] ?? 'auto', 'dark', _('Dark'))?>
+  <?=mk_option($nr['MODE'] ?? 'auto', 'system', _('Follow the system'))?>
   </select>
 
-> The mode every browser starts in. The switch in the navigation bar still overrides it for one browser.
+> The mode every browser starts in. "Follow the system" uses the light or dark preference of each device.
+> The switch in the navigation bar (light, system, dark) still overrides it for one browser.
 
 _(Density)_:
 : <select name="DENSITY">
@@ -891,7 +898,9 @@ html.nr .unapi {
     padding: 0;
 }
 
-/* Light/dark switch (nr.js mounts it inside the hidden-page anchor) */
+/* Light / system / dark switch (nr.js mounts it inside the hidden-page
+   anchor): three 20px options 4px apart in a pill, the thumb slides under the
+   chosen one */
 .nr .nr-anchor {
     display: flex;
     align-items: center;
@@ -903,37 +912,59 @@ html.nr .unapi {
     position: relative;
     display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    width: 5.2rem;
-    min-width: 0; /* stock buttons force 86px */
+    gap: .4rem;
     height: 2.6rem;
-    margin: 0;
-    padding: 0 .6rem;
-    letter-spacing: 0;
+    padding: 2px;
     border: 1px solid var(--nr-border);
     border-radius: 999px;
     background: var(--nr-surface-3);
-    box-shadow: none;
-    cursor: pointer;
     box-sizing: border-box;
-    transition: background-color var(--nr-fast) var(--nr-ease), border-color var(--nr-fast) var(--nr-ease);
+    transition: border-color var(--nr-fast) var(--nr-ease);
 }
 
 .nr .nr-mode:hover {
     border-color: var(--nr-border-strong);
 }
 
-.nr .nr-mode:focus-visible {
+.nr .nr-mode [role="radio"] {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    color: var(--nr-muted);
+    cursor: pointer;
+    transition: color var(--nr-fast) var(--nr-ease);
+}
+
+.nr .nr-mode [role="radio"]:hover {
+    color: var(--nr-text-2);
+}
+
+.nr .nr-mode [role="radio"]:focus-visible {
     outline: none;
     box-shadow: var(--nr-focus-ring);
 }
 
+.nr .nr-mode [role="radio"][aria-checked="true"] {
+    color: var(--nr-accent-text);
+}
+
+/* Font Awesome glyphs render about 1px above the centre of a flex box
+   (measured on screen, light and dark): nudge them onto the thumb's centre */
 .nr .nr-mode i {
-    position: relative;
-    z-index: 1;
     font-size: 1.15rem;
-    color: var(--nr-faint);
-    transition: color var(--nr-fast) var(--nr-ease);
+    transform: translateY(1px);
+}
+
+/* The monitor glyph is wider and sits higher in its em box than the sun and
+   moon: a touch smaller and lower, so all three share the same centre */
+.nr .nr-mode .fa-desktop {
+    font-size: 1.05rem;
+    transform: translateY(calc(1px + .04em));
 }
 
 .nr .nr-mode-thumb {
@@ -948,19 +979,32 @@ html.nr .unapi {
     transition: transform 180ms var(--nr-ease);
 }
 
-.nr .nr-mode[aria-checked="true"] .nr-mode-thumb {
-    /* track width - thumb - both 2px insets - both 1px borders */
-    transform: translateX(calc(5.2rem - 2rem - 6px));
+/* One step = option + gap */
+.nr .nr-mode[data-nr-choice="system"] .nr-mode-thumb {
+    transform: translateX(2.4rem);
 }
 
-.nr .nr-mode[aria-checked="false"] .fa-sun-o,
-.nr .nr-mode[aria-checked="true"] .fa-moon-o {
-    color: var(--nr-accent-text);
+.nr .nr-mode[data-nr-choice="dark"] .nr-mode-thumb {
+    transform: translateX(4.8rem);
 }
 
 .nr.Theme--sidebar .nr-anchor {
     justify-content: center;
     margin: .8rem 0;
+}
+
+/* The 64px rail has no room for the pill across: stack it */
+.nr.Theme--sidebar .nr-mode {
+    flex-direction: column;
+    height: auto;
+}
+
+.nr.Theme--sidebar .nr-mode[data-nr-choice="system"] .nr-mode-thumb {
+    transform: translateY(2.4rem);
+}
+
+.nr.Theme--sidebar .nr-mode[data-nr-choice="dark"] .nr-mode-thumb {
+    transform: translateY(4.8rem);
 }
 
 /* Array usage pill next to the utility icons */
@@ -3647,16 +3691,23 @@ html.nr {
   applyConfig();
 
   // The Unraid theme picked in Display Settings decides the default,
-  // unless the plugin settings pin a mode for every browser
+  // unless the plugin settings pin a mode for every browser. "system"
+  // follows the OS preference and resolves to nr-dark / nr-light.
+  var MODES = ['light', 'system', 'dark'];
+  var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  var choice = null;
   function stockIsDark() {
     return root.classList.contains('Theme--black') || root.classList.contains('Theme--gray');
   }
   function pinnedMode() {
-    return cfg.mode === 'dark' || cfg.mode === 'light' ? cfg.mode : null;
+    return MODES.indexOf(cfg.mode) >= 0 ? cfg.mode : null;
   }
-  function defaultIsDark() {
-    var pinned = pinnedMode();
-    return pinned ? pinned === 'dark' : stockIsDark();
+  // What the switch shows when this browser made no choice
+  function defaultChoice() {
+    return pinnedMode() || (stockIsDark() ? 'dark' : 'light');
+  }
+  function currentChoice() {
+    return choice || defaultChoice();
   }
   function isDark() {
     if (root.classList.contains('nr-dark')) return true;
@@ -3665,7 +3716,9 @@ html.nr {
   }
   // mode: this browser's choice from the switch, or null to use the default
   function apply(mode) {
-    mode = mode || pinnedMode();
+    choice = MODES.indexOf(mode) >= 0 ? mode : null;
+    mode = choice || pinnedMode();
+    if (mode === 'system') mode = media && media.matches ? 'dark' : 'light';
     root.classList.remove('nr-dark', 'nr-light');
     if (mode === 'dark' || mode === 'light') root.classList.add('nr-' + mode);
   }
@@ -3797,35 +3850,70 @@ html.nr {
 
   var refreshSwitch = function () {};
 
+  // Light / system / dark: a radio group of three icons with a sliding thumb.
+  // Spans, not buttons, so the stock and theme button styles stay out.
+  var LABELS = { light: ['sun-o', 'Light mode'], system: ['desktop', 'Follow the system'], dark: ['moon-o', 'Dark mode'] };
+
   function mountSwitch() {
     var anchor = document.querySelector('#menu .nr-anchor');
     if (!anchor || anchor.querySelector('.nr-mode')) return;
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'nr-mode';
-    btn.setAttribute('role', 'switch');
-    btn.innerHTML = '<i class="fa fa-sun-o" aria-hidden="true"></i><span class="nr-mode-thumb"></span><i class="fa fa-moon-o" aria-hidden="true"></i>';
+    var group = document.createElement('div');
+    group.className = 'nr-mode';
+    group.setAttribute('role', 'radiogroup');
+    group.setAttribute('aria-label', 'Colour mode');
+    group.innerHTML = '<span class="nr-mode-thumb"></span>' + MODES.map(function (mode) {
+      return '<span role="radio" data-mode="' + mode + '" title="' + LABELS[mode][1] + '" aria-label="' + LABELS[mode][1] + '">' +
+        '<i class="fa fa-' + LABELS[mode][0] + '" aria-hidden="true"></i></span>';
+    }).join('');
+    var options = group.querySelectorAll('[role="radio"]');
 
     function sync() {
-      var dark = isDark();
-      btn.setAttribute('aria-checked', dark ? 'true' : 'false');
-      btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
-      btn.setAttribute('aria-label', 'Dark mode');
+      var current = currentChoice();
+      group.setAttribute('data-nr-choice', current);
+      for (var i = 0; i < options.length; i++) {
+        var on = options[i].getAttribute('data-mode') === current;
+        options[i].setAttribute('aria-checked', on ? 'true' : 'false');
+        options[i].tabIndex = on ? 0 : -1;
+      }
     }
-    btn.addEventListener('click', function () {
-      var next = isDark() ? 'light' : 'dark';
+    function choose(mode) {
       // Matching the default needs no override: forget the choice
-      var override = (next === 'dark') === defaultIsDark() ? null : next;
+      var override = mode === defaultChoice() ? null : mode;
       apply(override);
       write(override);
       sync();
       syncVue();
       syncCharts();
+    }
+    group.addEventListener('click', function (e) {
+      var option = e.target.closest('[role="radio"]');
+      if (option) choose(option.getAttribute('data-mode'));
+    });
+    // Arrow keys move the selection (and focus), wrapping like native radios
+    group.addEventListener('keydown', function (e) {
+      var i = Array.prototype.indexOf.call(options, e.target);
+      if (i < 0) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') i = (i + 1) % options.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') i = (i + options.length - 1) % options.length;
+      else if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      choose(options[i].getAttribute('data-mode'));
+      options[i].focus();
     });
     sync();
     refreshSwitch = sync;
-    anchor.appendChild(btn);
+    anchor.appendChild(group);
   }
+
+  // "system" follows the OS live: re-resolve when its preference changes
+  function systemChanged() {
+    if ((choice || pinnedMode()) !== 'system') return;
+    apply(choice);
+    syncVue();
+    syncCharts();
+  }
+  if (media && media.addEventListener) media.addEventListener('change', systemChanged);
+  else if (media && media.addListener) media.addListener(systemChanged);
 
   // Live preview for the settings page: apply options without saving them
   window.nrTheme = {
@@ -3858,7 +3946,7 @@ html.nr {
 <![CDATA[
 **Neoraid**
 
-A modern look for the Unraid 7.3 webGUI that keeps the Unraid palette. Light or dark follows *Settings → Display Settings* (white/azure = light, black/gray = dark); the switch in the navigation bar changes it for this browser. Accent colour, density, corners and font are in *Settings → Neoraid*. Uninstall the plugin to get the stock look back.
+A modern look for the Unraid 7.3 webGUI that keeps the Unraid palette. Light or dark follows *Settings → Display Settings* (white/azure = light, black/gray = dark); the switch in the navigation bar picks light, dark or the system preference for this browser. Accent colour, density, corners and font are in *Settings → Neoraid*. Uninstall the plugin to get the stock look back.
 ]]>
 </INLINE>
 </FILE>
