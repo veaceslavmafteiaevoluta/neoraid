@@ -27,7 +27,6 @@
  *   9. Dashboard
  *  10. Overlays: dialogs, alerts, tooltips, notices, context menus,
  *      Community Applications
- *  11. Sidebar layouts (gray, azure)
  */
 
 /* 1. Font ------------------------------------------------------------- */
@@ -244,7 +243,7 @@ html.nr[data-nr-switch="hide"] .nr-anchor {
     --scrollbar-color: var(--nr-border-strong);
     --scrollbar-hover-color: var(--nr-faint);
 
-    /* Sidebar layouts read these with !important, so the bridge is how we win */
+    /* Button colours of the stock gray/azure themes (read with !important there) */
     --button-border: var(--nr-border-strong);
     --button-text-color: var(--nr-text);
     --button-background: var(--nr-surface);
@@ -689,25 +688,6 @@ html.nr .unapi {
     transform: translateX(4.8rem);
 }
 
-.nr.Theme--sidebar .nr-anchor {
-    justify-content: center;
-    margin: .8rem 0;
-}
-
-/* The 64px rail has no room for the pill across: stack it */
-.nr.Theme--sidebar .nr-mode {
-    flex-direction: column;
-    height: auto;
-}
-
-.nr.Theme--sidebar .nr-mode[data-nr-choice="system"] .nr-mode-thumb {
-    transform: translateY(2.4rem);
-}
-
-.nr.Theme--sidebar .nr-mode[data-nr-choice="dark"] .nr-mode-thumb {
-    transform: translateY(4.8rem);
-}
-
 /* Array usage pill next to the utility icons */
 .nr #menu .usage-bar {
     float: none;
@@ -809,10 +789,6 @@ html.nr .unapi {
 
 .nr #displaybox {
     padding: 2.4rem 2.4rem 7.2rem;
-}
-
-.nr.Theme--sidebar #displaybox {
-    padding-left: 8.8rem;
 }
 
 .nr.Theme--width-boxed #displaybox {
@@ -3181,106 +3157,7 @@ html.nr {
     color: var(--nr-muted);
 }
 
-/* 11. Sidebar layouts (gray, azure) ----------------------------------- */
-
-/* A 64px icon rail; hovering an item slides its label out (stock behaviour) */
-.nr.Theme--sidebar #menu {
-    background-color: var(--nr-surface);
-    border-right: 1px solid var(--nr-border);
-    box-shadow: none;
-}
-
-.nr.Theme--sidebar .nav-tile {
-    padding: .4rem 0;
-    gap: .2rem;
-}
-
-/* The labels are bare text inside the link, not spans: the 64px item has to
-   clip them (stock), or they show cut off and the rail gets scrollbars */
-.nr.Theme--sidebar .nav-item {
-    width: 64px;
-    border-bottom: 0;
-    background: transparent;
-    overflow: hidden;
-}
-
-.nr.Theme--sidebar .nav-item:hover {
-    width: auto;
-    background: transparent;
-    overflow: visible;
-}
-
-.nr.Theme--sidebar .nav-item a {
-    position: relative;
-    margin: 0 .8rem;
-    padding: 1rem 1.2rem;
-    gap: 2rem;
-    color: var(--nr-muted);
-    background: transparent;
-    border-radius: var(--nr-radius);
-    font-size: 1.4rem;
-    letter-spacing: 0;
-    transition: color var(--nr-fast) var(--nr-ease), background-color var(--nr-fast) var(--nr-ease);
-}
-
-.nr.Theme--sidebar .nav-item a::before {
-    font-size: 2rem;
-    width: 2.4rem;
-    text-align: center;
-}
-
-.nr.Theme--sidebar .nav-item.util a {
-    padding-left: 1.2rem;
-}
-
-.nr.Theme--sidebar .nav-item.util a::before {
-    font-size: 1.6rem;
-}
-
-.nr.Theme--sidebar .nav-item a span {
-    display: none;
-}
-
-.nr.Theme--sidebar .nav-item:hover a {
-    color: var(--nr-text);
-    background: var(--nr-surface-3);
-    font-size: 1.4rem;
-    padding-right: 1.6rem;
-    box-shadow: var(--nr-shadow-md);
-}
-
-.nr.Theme--sidebar .nav-item:hover a span {
-    display: inline;
-}
-
-.nr.Theme--sidebar .nav-item.active,
-.nr.Theme--sidebar .nav-item.HelpButton.active {
-    background: transparent;
-}
-
-.nr.Theme--sidebar .nav-item.active a,
-.nr.Theme--sidebar .nav-item.HelpButton.active a,
-.nr.Theme--sidebar .nav-item.HelpButton.active a:hover {
-    color: var(--nr-accent-text);
-    background: var(--nr-accent-soft);
-    font-size: 1.4rem;
-}
-
-.nr.Theme--sidebar .nav-item.active a::after {
-    content: "";
-    position: absolute;
-    left: -.8rem;
-    top: 25%;
-    bottom: 25%;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: var(--nr-brand-gradient);
-}
-
-.nr.Theme--sidebar #header {
-    border-bottom: 1px solid var(--nr-border);
-}
-
+/* Reduced motion: no transitions or animations anywhere in the theme */
 @media (prefers-reduced-motion: reduce) {
     .nr *,
     .nr *::before,

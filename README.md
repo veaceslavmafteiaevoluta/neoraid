@@ -69,7 +69,7 @@ Personal data (server name, container and VM names, shares, disk serials, IP add
 - The Vue header keeps its own layout; the theme sets its colours.
 - The option list of a native `<select>` is drawn by the operating system.
 - App icons and badges in Community Applications are images from the CA feed.
-- The sidebar layouts (gray and azure themes) have had less testing than the top navigation.
+- Neoraid is designed for the top navigation (white and black themes). The sidebar navigation of the gray and azure themes is not restyled: it keeps the stock layout, with the Neoraid colours.
 
 ## Repository
 

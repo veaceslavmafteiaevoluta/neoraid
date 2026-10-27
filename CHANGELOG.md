@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.10.27c
+
+- The sidebar navigation of the gray and azure themes is no longer restyled: Neoraid now targets the top navigation only (white and black themes). With gray or azure the stock sidebar layout stays, with the Neoraid colours.
+
 ## 2026.10.27b
 
 - The light/dark switch in the navigation bar has a third position, "system", that follows the light or dark preference of the device and changes along with it.
