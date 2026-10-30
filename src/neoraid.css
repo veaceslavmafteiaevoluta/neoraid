@@ -538,6 +538,15 @@ html.nr .unapi {
     transition: color var(--nr-fast) var(--nr-ease), background-color var(--nr-fast) var(--nr-ease);
 }
 
+/* Narrow windows (1920px at 150% scaling is 1280px): tighter pills, or the
+   last entries slide under the right-hand icons */
+@media (max-width: 1440px) {
+    .nr.Theme--nav-top .nav-item a {
+        padding-left: .7rem;
+        padding-right: .7rem;
+    }
+}
+
 .nr.Theme--nav-top .nav-item a:hover,
 .nr.Theme--nav-top .nav-item a:focus-visible {
     color: var(--nr-text);
@@ -1511,6 +1520,56 @@ html.nr:root {
    two 16px lines; a taller line-height hides the second line */
 .nr .docker_readmore {
     line-height: 1.6rem;
+}
+
+/* Docker table: up to ten columns. At the stock 13px, with tighter cell
+   padding, it needs no more width than stock Unraid (~1260px), so it fits
+   narrow windows instead of overflowing its scroll container */
+.nr #docker_containers :is(thead th, tbody td) {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.nr #docker_containers tbody td {
+    font-size: 1.3rem;
+}
+
+/* Narrow windows (1920px at 150% scaling is a 1280px page): tighter cells,
+   and the Uptime/Created cell may wrap. Unraid writes white-space: nowrap
+   inline on it, and justifies the cell, which spaces out wrapped words */
+.nr .TableContainer:has(> #docker_containers) {
+    container-type: inline-size;
+}
+
+@container (max-width: 132rem) {
+    .nr #docker_containers :is(thead th, tbody td) {
+        padding-left: .6rem;
+        padding-right: .6rem;
+    }
+
+    .nr #docker_containers thead th {
+        letter-spacing: 0;
+    }
+
+    .nr #docker_containers tbody td:last-child {
+        min-width: 12rem;
+        text-align: left;
+    }
+
+    .nr #docker_containers tbody td:last-child > div[style*="nowrap"] {
+        white-space: normal !important;
+    }
+}
+
+/* The Dashboard card (section 9) also matches the name cell: drop its
+   margin and the fixed 12rem name width, which widened the column */
+.nr #docker_containers td.ct-name span.outer:not(.vmsuse) {
+    margin: 0;
+}
+
+.nr #docker_containers td.ct-name span.outer:not(.vmsuse) > span.inner {
+    flex: 0 1 auto;
+    width: auto;
 }
 
 /* Docker container names read as text, like the Dashboard tiles; an update

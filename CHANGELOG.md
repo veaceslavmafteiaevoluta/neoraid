@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.10.30a
+
+- Docker: the container table fits narrower windows, such as a 1080p laptop at 150% scaling, so the Autostart and Uptime columns are no longer cut off. Table text is 13px like stock, with tighter cell padding, and the Application column no longer reserves a fixed width for the name. When space is short, cells get tighter still and the Uptime/Created text wraps.
+- Navigation bar: on narrow windows the menu entries are more compact, so the last ones no longer slide under the icons on the right.
+
 ## 2026.10.27c
 
 - The sidebar navigation of the gray and azure themes is no longer restyled: Neoraid now targets the top navigation only (white and black themes). With gray or azure the stock sidebar layout stays, with the Neoraid colours.
