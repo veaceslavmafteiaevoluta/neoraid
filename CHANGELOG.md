@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.11.09f
+
+- Gray and azure themes: the array usage bar and the light/system/dark switch move to the header, just left of the user and server name, instead of spilling over the sidebar. The usage bar gets the same pill as with the top navigation, with the value centred. On narrow windows the usage bar is hidden under 768px and both under 560px, so they never cover the logo. With the white and black themes both stay in the navigation bar.
+- Gray and azure themes: the page content no longer slides under the sidebar. 2026.10.27c dropped the space the stock layout keeps for it.
+- Gray and azure themes: the active and hovered sidebar items follow the accent colour instead of the fixed Unraid red-orange.
+- CA User Scripts: the schedule menu shows the selected schedule again instead of only its arrow, on windows narrower than about 1600px. Long script descriptions wrap, so the table fits the page.
+- folder.view: the border around the folder preview, its dividers and the line under an open folder no longer stay black (or white) when the mode changes. They follow the theme when they use folder.view's default colour; a colour picked in the folder settings is kept.
+
 ## 2026.10.30a
 
 - Docker: the container table fits narrower windows, such as a 1080p laptop at 150% scaling, so the Autostart and Uptime columns are no longer cut off. Table text is 13px like stock, with tighter cell padding, and the Application column no longer reserves a fixed width for the name. When space is short, cells get tighter still and the Uptime/Created text wraps.

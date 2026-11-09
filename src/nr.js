@@ -158,8 +158,11 @@
   }
   // The array usage pill prints its value inside the fill, which is too narrow
   // to hold it; mirror it to an attribute the stylesheet centres on the pill.
+  // The pill moves to the header tools (below); until then it sits in #menu
+  // (top navigation) or #array-usage-sidenav (sidebar layouts).
+  var USAGE = '.nr-header-tools .usage-bar, #menu .usage-bar, #array-usage-sidenav .usage-bar';
   function syncUsage() {
-    document.querySelectorAll('#menu .usage-bar').forEach(function (bar) {
+    document.querySelectorAll(USAGE).forEach(function (bar) {
       var label = bar.textContent.trim();
       if (bar.getAttribute('data-nr-label') !== label) bar.setAttribute('data-nr-label', label);
     });
@@ -172,18 +175,62 @@
     if (el.tagName === 'TR' && el.style.display === 'table-row' && el.closest('table.dashboard')) el.style.display = 'block';
   }
 
+  // Header tools (sidebar layouts only: gray, azure): the 64px rail has no
+  // room for the array usage pill and the light/system/dark switch, so they
+  // sit in the header, just left of the user profile (server name). With the
+  // top navigation they stay in #menu.
+  // The profile is a Vue component with its own absolute layout, so the tools
+  // stay outside it and follow its width. Its usage pill is printed once per
+  // page (no live updates), so moving the node is safe.
+  var tools = null;
+  function profileRow() {
+    var profile = document.getElementById('UserProfile');
+    return profile && profile.lastElementChild;
+  }
+  function placeTools() {
+    if (!tools) return;
+    var header = tools.parentNode, row = profileRow();
+    if (!row || !row.offsetWidth) return;
+    var h = header.getBoundingClientRect(), r = row.getBoundingClientRect();
+    var right = Math.round(h.right - r.left) + 'px';
+    var top = Math.round(r.top - h.top) + 'px';
+    var height = Math.round(r.height) + 'px';
+    // Write only what changed: the observer below sees these style writes
+    if (tools.style.right !== right) tools.style.right = right;
+    if (tools.style.top !== top) tools.style.top = top;
+    if (tools.style.height !== height) tools.style.height = height;
+  }
+  function mountTools() {
+    var header = document.getElementById('header');
+    if (!header || tools || !root.classList.contains('Theme--sidebar')) return;
+    tools = document.createElement('div');
+    tools.className = 'nr-header-tools';
+    var usage = document.getElementById('array-usage-sidenav') || document.querySelector('#menu .usage-bar');
+    var anchor = document.querySelector('#menu .nr-anchor');
+    if (usage) tools.appendChild(usage);
+    if (anchor) tools.appendChild(anchor);
+    header.appendChild(tools);
+    placeTools();
+    window.addEventListener('resize', placeTools);
+    // Inter arrives after the first layout and widens the server name
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeTools);
+  }
+
   new MutationObserver(function (records) {
-    var vue = false, usage = false;
+    var vue = false, usage = false, place = false;
     for (var i = 0; i < records.length; i++) {
       var t = records[i].target;
       if (!vue && relevant(records[i])) vue = true;
       if (t.nodeType === 1) {
-        if (!usage && t.closest('#menu .usage-bar')) usage = true;
+        if (!usage && t.closest(USAGE)) usage = true;
         if (records[i].attributeName === 'style') fixRow(t);
+        // The Vue profile mounts late and can change width (uptime, name)
+        if (!place && tools && t.closest('#UserProfile, unraid-user-profile')) place = true;
       }
     }
     if (vue) syncVue();
     if (usage) syncUsage();
+    if (place) placeTools();
   }).observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'style'] });
 
   apply(read());
@@ -332,6 +379,7 @@
 
   function ready() {
     mountSwitch();
+    mountTools();
     syncVue();
     syncUsage();
     document.querySelectorAll('table.dashboard tr[style]').forEach(fixRow);

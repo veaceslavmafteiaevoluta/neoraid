@@ -13,6 +13,7 @@ A modern theme for the **Unraid 7.3** webGUI that keeps the Unraid palette. It i
 ## Features
 
 - **Light and dark** — follows *Settings → Display Settings* (white/azure = light, black/gray = dark). A three-way switch in the navigation bar (light, system, dark) changes it on the fly, for that browser; *system* follows the device's light or dark preference. The Vue header and the notification panel follow it too.
+- **Sidebar themes** — with gray and azure the stock sidebar stays; its active item follows the accent, and the array usage bar and the light/system/dark switch sit in the header, next to the server name.
 - **Redesigned webGUI** — navigation, tabs, tables, usage meters, forms, buttons, toggles, menus, dialogs and tooltips, with Inter as the interface font.
 - **Dashboard** — equal columns, tiles as cards, Docker, VM and Virtual Machines Usage cards that fill the row at any browser zoom, smooth CPU and network charts in the accent colour, thinner RAM rings with a dedicated palette.
 - **Settings → Neoraid** — accent colour, default mode for every browser, density, corners, font, switch on or off, with a live preview.
@@ -43,7 +44,7 @@ Reload the page. Updates show up in **Plugins → Check for Updates**.
 | Density | Comfortable / Compact | Height of table rows and controls |
 | Corners | Standard / Sharp / Round | Radius of cards, tables, buttons and fields |
 | Font | Inter (included) / System font | Interface typeface |
-| Light/dark switch | Show / Hide | The light/system/dark switch in the navigation bar |
+| Light/dark switch | Show / Hide | The light/system/dark switch in the navigation bar (in the header with the sidebar themes) |
 
 Every change previews immediately; **Apply** saves it for all pages and browsers, **Default** restores the initial values. Settings are stored in `/boot/config/plugins/neoraid/neoraid.cfg`.
 

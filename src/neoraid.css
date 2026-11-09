@@ -697,8 +697,58 @@ html.nr .unapi {
     transform: translateX(4.8rem);
 }
 
-/* Array usage pill next to the utility icons */
-.nr #menu .usage-bar {
+/* Header tools (sidebar layouts): nr.js moves the array usage pill and the
+   light/system/dark switch into the header, just left of the Vue user
+   profile (server name), and sets right/top/height from the profile's name
+   row. The defaults below apply until the profile has mounted. With the top
+   navigation both stay in #menu. */
+.nr #header {
+    position: relative;
+}
+
+.nr .nr-header-tools {
+    position: absolute;
+    top: 0;
+    right: 26rem;
+    height: 100%;
+    z-index: 20; /* above the profile box, which is wider than its name row */
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding-right: 1.6rem;
+}
+
+.nr .nr-header-tools .nr-anchor {
+    margin: 0;
+}
+
+/* Narrow windows: the tools would run into the logo (it ends at ~256px) */
+@media (max-width: 767px) {
+    .nr .nr-header-tools .usage-bar {
+        display: none;
+    }
+}
+
+@media (max-width: 559px) {
+    .nr .nr-header-tools {
+        display: none;
+    }
+}
+
+/* Sidebar layouts print the pill in span#array-usage-sidenav, placed
+   absolutely by the stock theme (.Theme--sidebar .usage-bar) */
+.nr .nr-header-tools #array-usage-sidenav {
+    display: flex;
+}
+
+.nr #header .nr-header-tools .usage-bar {
+    position: relative;
+    inset: auto;
+    margin: 0;
+}
+
+/* Array usage pill: in #menu (top navigation) or the header tools (sidebar) */
+.nr :is(#menu, .nr-header-tools) .usage-bar {
     float: none;
     align-self: center;
     width: 11rem;
@@ -712,7 +762,7 @@ html.nr .unapi {
     overflow: hidden;
 }
 
-.nr #menu .usage-bar > span {
+.nr :is(#menu, .nr-header-tools) .usage-bar > span {
     border-radius: 999px;
     box-shadow: none;
     color: var(--nr-text);
@@ -724,23 +774,23 @@ html.nr .unapi {
     font-variant-numeric: tabular-nums;
 }
 
-.nr #menu .usage-bar > span:not(.greenbar, .orangebar, .redbar) {
+.nr :is(#menu, .nr-header-tools) .usage-bar > span:not(.greenbar, .orangebar, .redbar) {
     background: color-mix(in srgb, var(--nr-accent) 34%, transparent);
 }
 
 /* nr.js copies the value to data-nr-label: the fill keeps its true width and
    the label sits centred on the whole pill instead of inside the fill */
-.nr #menu .usage-bar[data-nr-label] {
+.nr :is(#menu, .nr-header-tools) .usage-bar[data-nr-label] {
     position: relative;
 }
 
-.nr #menu .usage-bar[data-nr-label] > span {
+.nr :is(#menu, .nr-header-tools) .usage-bar[data-nr-label] > span {
     min-width: 0;
     padding: 0;
     font-size: 0;
 }
 
-.nr #menu .usage-bar[data-nr-label]::after {
+.nr :is(#menu, .nr-header-tools) .usage-bar[data-nr-label]::after {
     content: attr(data-nr-label);
     position: absolute;
     inset: 0;
@@ -754,15 +804,15 @@ html.nr .unapi {
     pointer-events: none;
 }
 
-.nr #menu .usage-bar > span.greenbar {
+.nr :is(#menu, .nr-header-tools) .usage-bar > span.greenbar {
     background: color-mix(in srgb, var(--nr-meter-ok) 30%, transparent);
 }
 
-.nr #menu .usage-bar > span.orangebar {
+.nr :is(#menu, .nr-header-tools) .usage-bar > span.orangebar {
     background: color-mix(in srgb, var(--nr-meter-warn) 34%, transparent);
 }
 
-.nr #menu .usage-bar > span.redbar {
+.nr :is(#menu, .nr-header-tools) .usage-bar > span.redbar {
     background: color-mix(in srgb, var(--nr-meter-crit) 32%, transparent);
 }
 
@@ -794,10 +844,25 @@ html.nr .unapi {
     bottom: 4.4rem;
 }
 
+/* The stock sidebar paints the active and hovered items with a fixed
+   red-orange gradient (--red-800 → --brand-orange) and peach text: follow
+   the accent like the top navigation does */
+.nr.Theme--sidebar :is(.nav-item:hover, .nav-item:hover a, .nav-item.active, .nav-item.active a, .nav-item.HelpButton.active:hover, .nav-item.HelpButton.active a:hover) {
+    color: #fff; /* on the brand gradient, as on primary buttons */
+    background: var(--nr-brand-gradient);
+    border-bottom-color: transparent;
+}
+
 /* 6. Page structure --------------------------------------------------- */
 
 .nr #displaybox {
     padding: 2.4rem 2.4rem 7.2rem;
+}
+
+/* Gray/azure keep the stock 64px sidebar: the page has to clear it as in
+   stock (.Theme--sidebar #displaybox, same specificity as the rule above) */
+.nr.Theme--sidebar #displaybox {
+    padding-left: 8.8rem;
 }
 
 .nr.Theme--width-boxed #displaybox {
@@ -1296,6 +1361,18 @@ html.nr:root {
     box-shadow: none;
 }
 
+/* CA User Scripts: the schedule select sits in a cell with no width, and the
+   stock width: 100% lets the table squeeze it to the chevron padding (to
+   42px under ~1600px of window). The name cell is nowrap, so a long
+   description widened the table instead: let it wrap. */
+.nr select.schedule[id^="schedule"] {
+    width: auto;
+}
+
+.nr td:has(> .ca_descEdit) {
+    white-space: normal;
+}
+
 .nr input[type="checkbox"],
 .nr input[type="radio"] {
     accent-color: var(--nr-accent);
@@ -1620,6 +1697,20 @@ html.nr:root {
 .nr #docker_containers tr.folder .folder-preview span.outer {
     margin: 0 .4rem 0 0;
     padding: .2rem .6rem .2rem .2rem;
+}
+
+/* folder.view writes the preview border, its dividers and the line under the
+   last container inline, in a colour saved with the folder. Its default is
+   the page text colour at the time (stock white/black/gray/azure, Neoraid
+   light/dark), invisible once the mode changes: those defaults follow the
+   border token. A colour the user picked stays. */
+.nr #docker_containers :is(tr.folder div.folder-preview, tr.folder .folder-preview-divider, tr[class*="-element"]):is(
+    [style*="rgb(28, 25, 23)"], [style*="#1c1917"],
+    [style*="rgb(238, 237, 235)"], [style*="#eeedeb"],
+    [style*="rgb(29, 27, 27)"], [style*="#1d1b1b"],
+    [style*="rgb(242, 242, 242)"], [style*="#f2f2f2"],
+    [style*="rgb(96, 110, 127)"], [style*="#606e7f"]) {
+    border-color: var(--nr-border-strong) !important; /* inline style */
 }
 
 /* Version column: status in neutral text with a coloured icon, links

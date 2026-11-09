@@ -54,7 +54,7 @@ _(Default mode)_:
   </select>
 
 > The mode every browser starts in. "Follow the system" uses the light or dark preference of each device.
-> The switch in the navigation bar (light, system, dark) still overrides it for one browser.
+> The switch next to the navigation icons, or in the header with the sidebar themes (light, system, dark), still overrides it for one browser.
 
 _(Density)_:
 : <select name="DENSITY">
@@ -75,7 +75,7 @@ _(Font)_:
   <?=mk_option($nr['FONT'] ?? 'inter', 'system', _('System font'))?>
   </select>
 
-_(Light/dark switch in the navigation bar)_:
+_(Light/dark switch)_:
 : <select name="SWITCH">
   <?=mk_option($nr['SWITCH'] ?? 'show', 'show', _('Show'))?>
   <?=mk_option($nr['SWITCH'] ?? 'show', 'hide', _('Hide'))?>

@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name    "neoraid">
 <!ENTITY author  "Veaceslav Maftei">
-<!ENTITY version "2026.10.30a">
+<!ENTITY version "2026.11.09f">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg">
 <!ENTITY support "https://github.com/veaceslavmafteiaevoluta/neoraid/issues">
@@ -12,6 +12,14 @@
         launch="Settings/NeoraidSettings" pluginURL="&pluginURL;" support="&support;">
 
 <CHANGES>
+###2026.11.09f
+
+- Gray and azure themes: the array usage bar and the light/system/dark switch move to the header, just left of the user and server name, instead of spilling over the sidebar. The usage bar gets the same pill as with the top navigation, with the value centred. On narrow windows the usage bar is hidden under 768px and both under 560px, so they never cover the logo. With the white and black themes both stay in the navigation bar.
+- Gray and azure themes: the page content no longer slides under the sidebar. 2026.10.27c dropped the space the stock layout keeps for it.
+- Gray and azure themes: the active and hovered sidebar items follow the accent colour instead of the fixed Unraid red-orange.
+- CA User Scripts: the schedule menu shows the selected schedule again instead of only its arrow, on windows narrower than about 1600px. Long script descriptions wrap, so the table fits the page.
+- folder.view: the border around the folder preview, its dividers and the line under an open folder no longer stay black (or white) when the mode changes. They follow the theme when they use folder.view's default colour; a colour picked in the folder settings is kept.
+
 ###2026.10.30a
 
 - Docker: the container table fits narrower windows, such as a 1080p laptop at 150% scaling, so the Autostart and Uptime columns are no longer cut off. Table text is 13px like stock, with tighter cell padding, and the Application column no longer reserves a fixed width for the name. When space is short, cells get tighter still and the Uptime/Created text wraps.
@@ -209,7 +217,7 @@ _(Default mode)_:
   </select>
 
 > The mode every browser starts in. "Follow the system" uses the light or dark preference of each device.
-> The switch in the navigation bar (light, system, dark) still overrides it for one browser.
+> The switch next to the navigation icons, or in the header with the sidebar themes (light, system, dark), still overrides it for one browser.
 
 _(Density)_:
 : <select name="DENSITY">
@@ -230,7 +238,7 @@ _(Font)_:
   <?=mk_option($nr['FONT'] ?? 'inter', 'system', _('System font'))?>
   </select>
 
-_(Light/dark switch in the navigation bar)_:
+_(Light/dark switch)_:
 : <select name="SWITCH">
   <?=mk_option($nr['SWITCH'] ?? 'show', 'show', _('Show'))?>
   <?=mk_option($nr['SWITCH'] ?? 'show', 'hide', _('Hide'))?>
@@ -1005,8 +1013,58 @@ html.nr .unapi {
     transform: translateX(4.8rem);
 }
 
-/* Array usage pill next to the utility icons */
-.nr #menu .usage-bar {
+/* Header tools (sidebar layouts): nr.js moves the array usage pill and the
+   light/system/dark switch into the header, just left of the Vue user
+   profile (server name), and sets right/top/height from the profile's name
+   row. The defaults below apply until the profile has mounted. With the top
+   navigation both stay in #menu. */
+.nr #header {
+    position: relative;
+}
+
+.nr .nr-header-tools {
+    position: absolute;
+    top: 0;
+    right: 26rem;
+    height: 100%;
+    z-index: 20; /* above the profile box, which is wider than its name row */
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding-right: 1.6rem;
+}
+
+.nr .nr-header-tools .nr-anchor {
+    margin: 0;
+}
+
+/* Narrow windows: the tools would run into the logo (it ends at ~256px) */
+@media (max-width: 767px) {
+    .nr .nr-header-tools .usage-bar {
+        display: none;
+    }
+}
+
+@media (max-width: 559px) {
+    .nr .nr-header-tools {
+        display: none;
+    }
+}
+
+/* Sidebar layouts print the pill in span#array-usage-sidenav, placed
+   absolutely by the stock theme (.Theme--sidebar .usage-bar) */
+.nr .nr-header-tools #array-usage-sidenav {
+    display: flex;
+}
+
+.nr #header .nr-header-tools .usage-bar {
+    position: relative;
+    inset: auto;
+    margin: 0;
+}
+
+/* Array usage pill: in #menu (top navigation) or the header tools (sidebar) */
+.nr :is(#menu, .nr-header-tools) .usage-bar {
     float: none;
     align-self: center;
     width: 11rem;
@@ -1020,7 +1078,7 @@ html.nr .unapi {
     overflow: hidden;
 }
 
-.nr #menu .usage-bar > span {
+.nr :is(#menu, .nr-header-tools) .usage-bar > span {
     border-radius: 999px;
     box-shadow: none;
     color: var(--nr-text);
@@ -1032,23 +1090,23 @@ html.nr .unapi {
     font-variant-numeric: tabular-nums;
 }
 
-.nr #menu .usage-bar > span:not(.greenbar, .orangebar, .redbar) {
+.nr :is(#menu, .nr-header-tools) .usage-bar > span:not(.greenbar, .orangebar, .redbar) {
     background: color-mix(in srgb, var(--nr-accent) 34%, transparent);
 }
 
 /* nr.js copies the value to data-nr-label: the fill keeps its true width and
    the label sits centred on the whole pill instead of inside the fill */
-.nr #menu .usage-bar[data-nr-label] {
+.nr :is(#menu, .nr-header-tools) .usage-bar[data-nr-label] {
     position: relative;
 }
 
-.nr #menu .usage-bar[data-nr-label] > span {
+.nr :is(#menu, .nr-header-tools) .usage-bar[data-nr-label] > span {
     min-width: 0;
     padding: 0;
     font-size: 0;
 }
 
-.nr #menu .usage-bar[data-nr-label]::after {
+.nr :is(#menu, .nr-header-tools) .usage-bar[data-nr-label]::after {
     content: attr(data-nr-label);
     position: absolute;
     inset: 0;
@@ -1062,15 +1120,15 @@ html.nr .unapi {
     pointer-events: none;
 }
 
-.nr #menu .usage-bar > span.greenbar {
+.nr :is(#menu, .nr-header-tools) .usage-bar > span.greenbar {
     background: color-mix(in srgb, var(--nr-meter-ok) 30%, transparent);
 }
 
-.nr #menu .usage-bar > span.orangebar {
+.nr :is(#menu, .nr-header-tools) .usage-bar > span.orangebar {
     background: color-mix(in srgb, var(--nr-meter-warn) 34%, transparent);
 }
 
-.nr #menu .usage-bar > span.redbar {
+.nr :is(#menu, .nr-header-tools) .usage-bar > span.redbar {
     background: color-mix(in srgb, var(--nr-meter-crit) 32%, transparent);
 }
 
@@ -1102,10 +1160,25 @@ html.nr .unapi {
     bottom: 4.4rem;
 }
 
+/* The stock sidebar paints the active and hovered items with a fixed
+   red-orange gradient (--red-800 → --brand-orange) and peach text: follow
+   the accent like the top navigation does */
+.nr.Theme--sidebar :is(.nav-item:hover, .nav-item:hover a, .nav-item.active, .nav-item.active a, .nav-item.HelpButton.active:hover, .nav-item.HelpButton.active a:hover) {
+    color: #fff; /* on the brand gradient, as on primary buttons */
+    background: var(--nr-brand-gradient);
+    border-bottom-color: transparent;
+}
+
 /* 6. Page structure --------------------------------------------------- */
 
 .nr #displaybox {
     padding: 2.4rem 2.4rem 7.2rem;
+}
+
+/* Gray/azure keep the stock 64px sidebar: the page has to clear it as in
+   stock (.Theme--sidebar #displaybox, same specificity as the rule above) */
+.nr.Theme--sidebar #displaybox {
+    padding-left: 8.8rem;
 }
 
 .nr.Theme--width-boxed #displaybox {
@@ -1604,6 +1677,18 @@ html.nr:root {
     box-shadow: none;
 }
 
+/* CA User Scripts: the schedule select sits in a cell with no width, and the
+   stock width: 100% lets the table squeeze it to the chevron padding (to
+   42px under ~1600px of window). The name cell is nowrap, so a long
+   description widened the table instead: let it wrap. */
+.nr select.schedule[id^="schedule"] {
+    width: auto;
+}
+
+.nr td:has(> .ca_descEdit) {
+    white-space: normal;
+}
+
 .nr input[type="checkbox"],
 .nr input[type="radio"] {
     accent-color: var(--nr-accent);
@@ -1928,6 +2013,20 @@ html.nr:root {
 .nr #docker_containers tr.folder .folder-preview span.outer {
     margin: 0 .4rem 0 0;
     padding: .2rem .6rem .2rem .2rem;
+}
+
+/* folder.view writes the preview border, its dividers and the line under the
+   last container inline, in a colour saved with the folder. Its default is
+   the page text colour at the time (stock white/black/gray/azure, Neoraid
+   light/dark), invisible once the mode changes: those defaults follow the
+   border token. A colour the user picked stays. */
+.nr #docker_containers :is(tr.folder div.folder-preview, tr.folder .folder-preview-divider, tr[class*="-element"]):is(
+    [style*="rgb(28, 25, 23)"], [style*="#1c1917"],
+    [style*="rgb(238, 237, 235)"], [style*="#eeedeb"],
+    [style*="rgb(29, 27, 27)"], [style*="#1d1b1b"],
+    [style*="rgb(242, 242, 242)"], [style*="#f2f2f2"],
+    [style*="rgb(96, 110, 127)"], [style*="#606e7f"]) {
+    border-color: var(--nr-border-strong) !important; /* inline style */
 }
 
 /* Version column: status in neutral text with a coloured icon, links
@@ -3700,8 +3799,11 @@ html.nr {
   }
   // The array usage pill prints its value inside the fill, which is too narrow
   // to hold it; mirror it to an attribute the stylesheet centres on the pill.
+  // The pill moves to the header tools (below); until then it sits in #menu
+  // (top navigation) or #array-usage-sidenav (sidebar layouts).
+  var USAGE = '.nr-header-tools .usage-bar, #menu .usage-bar, #array-usage-sidenav .usage-bar';
   function syncUsage() {
-    document.querySelectorAll('#menu .usage-bar').forEach(function (bar) {
+    document.querySelectorAll(USAGE).forEach(function (bar) {
       var label = bar.textContent.trim();
       if (bar.getAttribute('data-nr-label') !== label) bar.setAttribute('data-nr-label', label);
     });
@@ -3714,18 +3816,62 @@ html.nr {
     if (el.tagName === 'TR' && el.style.display === 'table-row' && el.closest('table.dashboard')) el.style.display = 'block';
   }
 
+  // Header tools (sidebar layouts only: gray, azure): the 64px rail has no
+  // room for the array usage pill and the light/system/dark switch, so they
+  // sit in the header, just left of the user profile (server name). With the
+  // top navigation they stay in #menu.
+  // The profile is a Vue component with its own absolute layout, so the tools
+  // stay outside it and follow its width. Its usage pill is printed once per
+  // page (no live updates), so moving the node is safe.
+  var tools = null;
+  function profileRow() {
+    var profile = document.getElementById('UserProfile');
+    return profile && profile.lastElementChild;
+  }
+  function placeTools() {
+    if (!tools) return;
+    var header = tools.parentNode, row = profileRow();
+    if (!row || !row.offsetWidth) return;
+    var h = header.getBoundingClientRect(), r = row.getBoundingClientRect();
+    var right = Math.round(h.right - r.left) + 'px';
+    var top = Math.round(r.top - h.top) + 'px';
+    var height = Math.round(r.height) + 'px';
+    // Write only what changed: the observer below sees these style writes
+    if (tools.style.right !== right) tools.style.right = right;
+    if (tools.style.top !== top) tools.style.top = top;
+    if (tools.style.height !== height) tools.style.height = height;
+  }
+  function mountTools() {
+    var header = document.getElementById('header');
+    if (!header || tools || !root.classList.contains('Theme--sidebar')) return;
+    tools = document.createElement('div');
+    tools.className = 'nr-header-tools';
+    var usage = document.getElementById('array-usage-sidenav') || document.querySelector('#menu .usage-bar');
+    var anchor = document.querySelector('#menu .nr-anchor');
+    if (usage) tools.appendChild(usage);
+    if (anchor) tools.appendChild(anchor);
+    header.appendChild(tools);
+    placeTools();
+    window.addEventListener('resize', placeTools);
+    // Inter arrives after the first layout and widens the server name
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeTools);
+  }
+
   new MutationObserver(function (records) {
-    var vue = false, usage = false;
+    var vue = false, usage = false, place = false;
     for (var i = 0; i < records.length; i++) {
       var t = records[i].target;
       if (!vue && relevant(records[i])) vue = true;
       if (t.nodeType === 1) {
-        if (!usage && t.closest('#menu .usage-bar')) usage = true;
+        if (!usage && t.closest(USAGE)) usage = true;
         if (records[i].attributeName === 'style') fixRow(t);
+        // The Vue profile mounts late and can change width (uptime, name)
+        if (!place && tools && t.closest('#UserProfile, unraid-user-profile')) place = true;
       }
     }
     if (vue) syncVue();
     if (usage) syncUsage();
+    if (place) placeTools();
   }).observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'style'] });
 
   apply(read());
@@ -3874,6 +4020,7 @@ html.nr {
 
   function ready() {
     mountSwitch();
+    mountTools();
     syncVue();
     syncUsage();
     document.querySelectorAll('table.dashboard tr[style]').forEach(fixRow);
@@ -3891,7 +4038,7 @@ html.nr {
 <![CDATA[
 **Neoraid**
 
-A modern look for the Unraid 7.3 webGUI that keeps the Unraid palette. Light or dark follows *Settings → Display Settings* (white/azure = light, black/gray = dark); the switch in the navigation bar picks light, dark or the system preference for this browser. Accent colour, density, corners and font are in *Settings → Neoraid*. Uninstall the plugin to get the stock look back.
+A modern look for the Unraid 7.3 webGUI that keeps the Unraid palette. Light or dark follows *Settings → Display Settings* (white/azure = light, black/gray = dark); the switch in the navigation bar (in the header with the sidebar themes) picks light, dark or the system preference for this browser. Accent colour, density, corners and font are in *Settings → Neoraid*. Uninstall the plugin to get the stock look back.
 ]]>
 </INLINE>
 </FILE>
