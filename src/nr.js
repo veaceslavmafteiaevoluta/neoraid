@@ -216,8 +216,43 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeTools);
   }
 
+  // folder.view (and FolderView2/3) write the folder borders inline, in a
+  // colour saved with the folder. Its default is the page text colour at
+  // creation: near black or near white (#1c1b1b, #1d1b1b, #f2f2f2, ...) or
+  // the gray/azure text #606e7f, depending on theme and plugin version.
+  // Mark borders in such a colour (.nr-fv-border, see the stylesheet) so
+  // they follow the theme; any other colour was picked by the user.
+  var FOLDERS = ':is(#docker_containers, #kvm_table)';
+  var FV_BORDERS = FOLDERS + ' :is(tr.folder div.folder-preview, tr.folder .folder-preview-divider, tr[class*="-element"])';
+  var fvProbe = document.createElement('i');
+  function rgbOf(colour) {
+    fvProbe.style.color = '';
+    fvProbe.style.color = colour;
+    var m = /^rgba?\((\d+), (\d+), (\d+)/.exec(fvProbe.style.color);
+    return m ? [+m[1], +m[2], +m[3]] : null;
+  }
+  function defaultBorder(el) {
+    var s = el.style;
+    var colours = [s.getPropertyValue('--fv3-preview-border-color'), s.borderTopColor, s.borderBottomColor, s.borderLeftColor];
+    for (var i = 0; i < colours.length; i++) {
+      var c = colours[i] && rgbOf(colours[i].trim());
+      if (!c) continue;
+      var max = Math.max(c[0], c[1], c[2]), min = Math.min(c[0], c[1], c[2]);
+      if (c[0] === 96 && c[1] === 110 && c[2] === 127) return true;
+      return max - min <= 24 && (max <= 64 || min >= 216);
+    }
+    return false;
+  }
+  function markFolders() {
+    document.querySelectorAll(FV_BORDERS).forEach(function (el) {
+      var on = defaultBorder(el);
+      // Toggle only what differs: the observer below sees class changes
+      if (el.classList.contains('nr-fv-border') !== on) el.classList.toggle('nr-fv-border', on);
+    });
+  }
+
   new MutationObserver(function (records) {
-    var vue = false, usage = false, place = false;
+    var vue = false, usage = false, place = false, folders = false;
     for (var i = 0; i < records.length; i++) {
       var t = records[i].target;
       if (!vue && relevant(records[i])) vue = true;
@@ -226,11 +261,13 @@
         if (records[i].attributeName === 'style') fixRow(t);
         // The Vue profile mounts late and can change width (uptime, name)
         if (!place && tools && t.closest('#UserProfile, unraid-user-profile')) place = true;
+        if (!folders && records[i].attributeName !== 'class' && t.closest(FOLDERS)) folders = true;
       }
     }
     if (vue) syncVue();
     if (usage) syncUsage();
     if (place) placeTools();
+    if (folders) markFolders();
   }).observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'style'] });
 
   apply(read());
@@ -383,6 +420,7 @@
     syncVue();
     syncUsage();
     document.querySelectorAll('table.dashboard tr[style]').forEach(fixRow);
+    markFolders();
     syncCharts();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);

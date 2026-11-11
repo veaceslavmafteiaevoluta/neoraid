@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026.11.11b
+
+- Unraid 7.4: the new operation sheet (plugin, Docker and VM tasks) and the background task tray follow the theme: header, status strip and log edge to edge, status colours and buttons from the theme, in light and dark.
+- Docker: the output of Add Container and Update Container (pulling image, command execution) is readable again in dark mode. Errors use the theme danger colour instead of a pink box.
+- File Manager: the selection checkboxes and the action icons are visible in dark mode, the filter icon no longer covers the field text, and the action icon no longer shows a trailing "...".
+- Dialogs (File Manager Copy/Move and other jQuery UI dialogs): the body is no longer white in dark mode, and the close/minimize button is no longer cut off.
+- Context menus no longer overflow the right edge of the window (File Manager action menu), which also added a horizontal scrollbar.
+- folder.view, FolderView2, FolderView3: the default folder border colour is now recognised whatever its exact shade or format (for example #1c1b1b, or uppercase hex), so the preview border, its dividers and the line under an open folder all follow the theme. Colours picked in the folder settings are kept.
+- folder.view and FolderView2: the containers and VMs in the folder preview are centred again instead of sitting low and spilling over the bottom border.
+- folder.view on the VMs page: same border handling as Docker, the expand button stays on the folder name row, and VM names in the preview read as text.
+- Dashboard: the icon and the controls of the Virtual Machines, Docker Containers and VPN tiles line up with the title again, like the other tiles, instead of sitting lower.
+- Community Applications and Dashboard: a few theme colours (borders in Apps, the centre of the memory rings) no longer fall back to the stock values.
+
 ## 2026.11.09f
 
 - Gray and azure themes: the array usage bar and the light/system/dark switch move to the header, just left of the user and server name, instead of spilling over the sidebar. The usage bar gets the same pill as with the top navigation, with the value centred. On narrow windows the usage bar is hidden under 768px and both under 560px, so they never cover the logo. With the white and black themes both stay in the navigation bar.

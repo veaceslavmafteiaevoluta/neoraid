@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name    "neoraid">
 <!ENTITY author  "Veaceslav Maftei">
-<!ENTITY version "2026.11.09f">
+<!ENTITY version "2026.11.11b">
 <!ENTITY plugdir "/usr/local/emhttp/plugins/&name;">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/veaceslavmafteiaevoluta/neoraid/main/dist/neoraid.plg">
 <!ENTITY support "https://github.com/veaceslavmafteiaevoluta/neoraid/issues">
@@ -12,6 +12,19 @@
         launch="Settings/NeoraidSettings" pluginURL="&pluginURL;" support="&support;">
 
 <CHANGES>
+###2026.11.11b
+
+- Unraid 7.4: the new operation sheet (plugin, Docker and VM tasks) and the background task tray follow the theme: header, status strip and log edge to edge, status colours and buttons from the theme, in light and dark.
+- Docker: the output of Add Container and Update Container (pulling image, command execution) is readable again in dark mode. Errors use the theme danger colour instead of a pink box.
+- File Manager: the selection checkboxes and the action icons are visible in dark mode, the filter icon no longer covers the field text, and the action icon no longer shows a trailing "...".
+- Dialogs (File Manager Copy/Move and other jQuery UI dialogs): the body is no longer white in dark mode, and the close/minimize button is no longer cut off.
+- Context menus no longer overflow the right edge of the window (File Manager action menu), which also added a horizontal scrollbar.
+- folder.view, FolderView2, FolderView3: the default folder border colour is now recognised whatever its exact shade or format (for example #1c1b1b, or uppercase hex), so the preview border, its dividers and the line under an open folder all follow the theme. Colours picked in the folder settings are kept.
+- folder.view and FolderView2: the containers and VMs in the folder preview are centred again instead of sitting low and spilling over the bottom border.
+- folder.view on the VMs page: same border handling as Docker, the expand button stays on the folder name row, and VM names in the preview read as text.
+- Dashboard: the icon and the controls of the Virtual Machines, Docker Containers and VPN tiles line up with the title again, like the other tiles, instead of sitting lower.
+- Community Applications and Dashboard: a few theme colours (borders in Apps, the centre of the memory rings) no longer fall back to the stock values.
+
 ###2026.11.09f
 
 - Gray and azure themes: the array usage bar and the light/system/dark switch move to the header, just left of the user and server name, instead of spilling over the sidebar. The usage bar gets the same pill as with the top navigation, with the value centred. On narrow windows the usage bar is hidden under 768px and both under 560px, so they never cover the logo. With the white and black themes both stay in the navigation bar.
@@ -508,7 +521,10 @@ html.nr[data-nr-switch="hide"] .nr-anchor {
 
 /* 3. Stock variable bridge -------------------------------------------- */
 
-.nr {
+/* html.nr:root (0,2,1): default-dynamix.css sets some of these on
+   .Theme--white:root (0,2,0), and page sheets loaded later (Community
+   Applications, File Manager) on :root, which beat a plain .nr */
+html.nr:root {
     --text-color: var(--nr-text);
     --blockquote-text-color: var(--nr-text-2);
     --alt-text-color: var(--nr-muted);
@@ -613,6 +629,18 @@ html.nr[data-nr-switch="hide"] .nr-anchor {
     --dynamix-awesomplete-list-bg-color: var(--nr-surface);
     --dynamix-awesomplete-list-bg-from-color: var(--nr-surface);
     --dynamix-awesomplete-list-border-color: var(--nr-border);
+
+    /* File Manager (Browse.css, BrowseButton.css): icons and the filter
+       field are near-black on .Theme--white:root, invisible in dark */
+    --browse-icon-color: var(--nr-muted);
+    --browse-text-color: var(--nr-text);
+    --browse-select-border-color: var(--nr-border-strong);
+    --browse-select-option-bg-color: var(--nr-surface);
+    --browse-table-controls-bg-color: var(--nr-surface-2);
+    --browse-table-tbody-tr-hover-td-bg-color: var(--nr-surface-2);
+    --input-dfm-filter-bg-color: var(--nr-surface);
+    --input-dfm-target-text-color: var(--nr-text);
+    --input-dfm-target-filetree-bg-color: var(--nr-surface);
 }
 
 /* Vue components (header, notifications, modals) live in .unapi scopes that
@@ -1989,43 +2017,59 @@ html.nr:root {
     color: var(--nr-accent-text);
 }
 
-/* folder.view rows: the Dashboard card padding on span.outer (section 9)
-   widens the folder name, so the expand button (float: right) wrapped below
-   it, and made the preview items taller than their clipped box */
-.nr #docker_containers tr.folder .folder-name-sub {
+/* folder.view rows (Docker and VMs): the Dashboard card padding on
+   span.outer (section 9) widens the folder name, so the expand button
+   (float: right) wrapped below it, and made the preview items taller than
+   their clipped box */
+.nr :is(#docker_containers, #kvm_table) tr.folder .folder-name-sub {
     display: flex;
     align-items: center;
     gap: .8rem;
 }
 
-.nr #docker_containers tr.folder .folder-outer {
+.nr :is(#docker_containers, #kvm_table) tr.folder .folder-outer {
     flex: 1 1 auto;
     min-width: 0;
     margin: 0;
 }
 
-.nr #docker_containers tr.folder .folder-dropdown {
+.nr :is(#docker_containers, #kvm_table) tr.folder .folder-dropdown {
     flex: none;
     float: none;
     margin: 0;
 }
 
-.nr #docker_containers tr.folder .folder-preview span.outer {
+.nr :is(#docker_containers, #kvm_table) tr.folder .folder-preview span.outer {
     margin: 0 .4rem 0 0;
     padding: .2rem .6rem .2rem .2rem;
 }
 
-/* folder.view writes the preview border, its dividers and the line under the
-   last container inline, in a colour saved with the folder. Its default is
-   the page text colour at the time (stock white/black/gray/azure, Neoraid
-   light/dark), invisible once the mode changes: those defaults follow the
-   border token. A colour the user picked stays. */
-.nr #docker_containers :is(tr.folder div.folder-preview, tr.folder .folder-preview-divider, tr[class*="-element"]):is(
-    [style*="rgb(28, 25, 23)"], [style*="#1c1917"],
-    [style*="rgb(238, 237, 235)"], [style*="#eeedeb"],
-    [style*="rgb(29, 27, 27)"], [style*="#1d1b1b"],
-    [style*="rgb(242, 242, 242)"], [style*="#f2f2f2"],
-    [style*="rgb(96, 110, 127)"], [style*="#606e7f"]) {
+/* folder.view and FolderView2 push the preview items down by 7px (and the
+   dividers back up) to centre them in the stock cell; the theme preview is
+   a flex box that already centres them, so the items sat low and spilled
+   out of the bottom border (FolderView3 dropped the margin itself) */
+.nr :is(#docker_containers, #kvm_table) tr.folder :is(.folder-preview-wrapper, .folder-preview-divider) {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* VM names in the folder preview read as text, like the VM list */
+.nr #kvm_table tr.folder .folder-preview span.inner > a {
+    color: var(--nr-text);
+}
+
+.nr #kvm_table tr.folder .folder-preview span.inner > a:hover {
+    color: var(--nr-accent-text);
+}
+
+/* folder.view (and FolderView2/3) write the preview border, its dividers and
+   the line under the last container inline, in a colour saved with the
+   folder. The default is the page text colour at creation, near black or
+   near white depending on the theme and plugin version (#1c1b1b, #1d1b1b,
+   #f2f2f2, rgb(...) ...), invisible or harsh once the mode changes. nr.js
+   marks borders in such a neutral colour with .nr-fv-border; a colour the
+   user picked (any hue, or a mid grey) stays. */
+.nr .nr-fv-border {
     border-color: var(--nr-border-strong) !important; /* inline style */
 }
 
@@ -2118,6 +2162,77 @@ html.nr:root {
 
 .nr #kvm_table :is(td.vm-name .inner > a, a[class^="vcpu-"]):hover {
     color: var(--nr-accent-text);
+}
+
+/* Docker command output (Add/Update Container): log.htm prints its own
+   <style> with near-black .logLine text (#1c1c1c), unreadable in dark, and
+   a pink box for errors */
+.nr fieldset.CMD {
+    margin: 0 0 1.6rem;
+    padding: 1.2rem 1.6rem 1.4rem;
+    background: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-radius: var(--nr-radius-lg);
+}
+
+.nr fieldset.CMD legend {
+    margin-left: -.6rem;
+    padding: 0 .6rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--nr-text);
+}
+
+.nr .logLine {
+    margin: 0;
+    font-family: var(--nr-mono);
+    font-size: 1.25rem;
+    line-height: 1.7;
+    color: var(--nr-text-2);
+}
+
+.nr .logLine b {
+    font-weight: 600;
+    color: var(--nr-text);
+}
+
+.nr .logLine .error {
+    margin: .2rem 0;
+    padding: .1rem .6rem;
+    color: var(--nr-danger);
+    background: var(--nr-danger-soft);
+    border: 0;
+    border-radius: var(--nr-radius-sm);
+}
+
+.nr .logLine .error b {
+    color: inherit;
+}
+
+/* File Manager: the filter field keeps room for its icon (the theme input
+   padding replaced the stock 30px), icon centred on the field */
+.nr input.dfm_filter {
+    width: 14rem;
+    padding-left: 3rem;
+}
+
+.nr span.dfm_filter i {
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--nr-muted);
+    pointer-events: none;
+}
+
+/* File Manager action column: the stock icon is followed by a literal "..."
+   inside the <i>; show the icon alone, on a regular click target */
+.nr table.indexer i[id^="row_"] {
+    width: 2.4rem;
+    font-size: 0;
+    text-align: center;
+}
+
+.nr table.indexer i[id^="row_"]::before {
+    font-size: 1.8rem;
 }
 
 /* Our own icon in the Plugins list: an app-style tile whose orange follows
@@ -2517,6 +2632,14 @@ html.nr:root {
     flex-wrap: nowrap;
     gap: 1.2rem;
     min-width: 0;
+}
+
+/* Stock ends the title block with a <br>. After an inline line (VMs,
+   Docker, VPN: the All VMs / All Apps switch) it adds an empty line, so the
+   block grew by ~24px and the centred icon and controls sat 12px lower than
+   in the other tiles */
+.nr .tile-header .section > br:last-child {
+    display: none;
 }
 
 .nr .tile-header-left > i.f32,
@@ -3059,6 +3182,39 @@ html.nr:root {
     border-top: 1px solid var(--nr-border) !important;
 }
 
+/* Close / minimize control of the titlebar as an icon button. The File
+   Manager (BrowseButton.css) pulls it out with negative margins
+   (!important), which the rounded, clipped dialog cut in half; size,
+   background and border of jQuery UI buttons are !important in stock too */
+.nr .ui-dialog .ui-dialog-titlebar-close {
+    position: absolute;
+    top: 50%;
+    right: 1.6rem;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    margin: 0 !important;
+    padding: 0;
+    font-size: 1.2rem !important;
+    color: var(--nr-muted);
+    background: transparent !important;
+    border: 1px solid var(--nr-border-strong) !important;
+    border-radius: var(--nr-radius);
+}
+
+.nr .ui-dialog .ui-dialog-titlebar-close:hover {
+    color: #fff; /* on the accent fill, like primary buttons */
+    background: var(--nr-accent) !important;
+    border-color: var(--nr-accent) !important;
+}
+
+.nr .ui-dialog .ui-dialog-titlebar-close .ui-button-icon {
+    display: none;
+}
+
 .nr .sweet-overlay {
     background-color: var(--nr-overlay);
     -webkit-backdrop-filter: blur(2px);
@@ -3091,6 +3247,158 @@ html.nr:root {
 .nr pre#swalbody {
     background: transparent;
     border: 0;
+}
+
+/* Unraid 7.4 task sheet (.sweet-alert.nchan: plugin, Docker and VM
+   operations): header, state strip, log and footer edge to edge, so none
+   of the dialog padding above */
+.nr .sweet-alert.nchan {
+    padding: 0;
+}
+
+.nr .sweet-alert.nchan > h2 {
+    margin: 0;
+    padding: 1.6rem 6rem 1.4rem 2rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--nr-text);
+    background: var(--nr-surface);
+    border-bottom: 1px solid var(--nr-border);
+}
+
+.nr .sweet-alert.nchan .nchan-state {
+    padding: .7rem 2rem;
+    font-size: 1.2rem;
+    color: var(--nr-text-2);
+    border-bottom: 1px solid var(--nr-border);
+}
+
+.nr .sweet-alert.nchan .nchan-state.nchan-running {
+    background: var(--nr-info-soft);
+}
+
+.nr .sweet-alert.nchan .nchan-state.nchan-running i {
+    color: var(--nr-info);
+}
+
+.nr .sweet-alert.nchan .nchan-state.nchan-done {
+    background: var(--nr-success-soft);
+}
+
+.nr .sweet-alert.nchan .nchan-state.nchan-done i {
+    color: var(--nr-success);
+}
+
+.nr .sweet-alert.nchan .nchan-state.nchan-error {
+    background: var(--nr-danger-soft);
+}
+
+.nr .sweet-alert.nchan .nchan-state.nchan-error i {
+    color: var(--nr-danger);
+}
+
+.nr .sweet-alert.nchan > p {
+    padding: 1.4rem 2rem;
+}
+
+.nr .sweet-alert.nchan #swaltext {
+    font-family: var(--nr-mono);
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--nr-text-2);
+}
+
+.nr .sweet-alert.nchan .sa-button-container {
+    padding: 1.2rem 2rem;
+    background: var(--nr-surface-2);
+    border-top: 1px solid var(--nr-border);
+}
+
+/* Stock paints Dismiss flat orange with !important */
+.nr .sweet-alert.nchan button.confirm {
+    background: var(--nr-primary-gradient) !important;
+    border-radius: var(--nr-radius);
+}
+
+.nr .sweet-alert.nchan button.confirm:hover {
+    filter: brightness(1.06);
+}
+
+/* Minimize / close control in the header */
+.nr .sweet-alert .nchan-close {
+    top: 1.3rem;
+    right: 1.6rem;
+    width: 2.8rem;
+    height: 2.8rem;
+    color: var(--nr-muted);
+    border-color: var(--nr-border-strong);
+    border-radius: var(--nr-radius);
+}
+
+.nr .sweet-alert .nchan-close:hover {
+    color: #fff; /* on the accent fill, like primary buttons */
+    background: var(--nr-accent);
+    border-color: var(--nr-accent);
+}
+
+.nr .sweet-alert.nchan .nchan-resize::before {
+    background: var(--nr-border-strong);
+}
+
+.nr .sweet-alert.nchan .nchan-resize:hover::before {
+    background: var(--nr-accent);
+}
+
+/* Unraid 7.4 background task tray (bottom right): theme cards, status
+   colours from the tokens instead of the stock green/red/orange */
+.nr .op-tray .op-task {
+    padding: .7rem 1rem;
+    font-size: 1.3rem;
+    color: var(--nr-text);
+    background: var(--nr-surface);
+    border: 1px solid var(--nr-border);
+    border-left: 3px solid var(--nr-accent);
+    border-radius: var(--nr-radius);
+    box-shadow: var(--nr-shadow-md);
+}
+
+.nr .op-tray .op-task.op-done {
+    border-left-color: var(--nr-success);
+}
+
+.nr .op-tray .op-task.op-error {
+    border-left-color: var(--nr-danger);
+}
+
+.nr .op-tray .op-task.op-queued {
+    border-left-color: var(--nr-faint);
+}
+
+.nr .op-tray :is(.op-act, .op-icon),
+.nr .op-tray .op-tray-head .op-act {
+    color: var(--nr-muted);
+    opacity: 1;
+}
+
+.nr .op-tray .op-task.op-done .op-icon i {
+    color: var(--nr-success);
+}
+
+.nr .op-tray .op-task.op-error .op-icon i {
+    color: var(--nr-danger);
+}
+
+.nr .op-tray .op-act:hover,
+.nr .op-tray .op-tray-head .op-act:hover {
+    color: var(--nr-accent-text);
+}
+
+.nr .op-tray .op-tray-count {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    color: var(--nr-muted);
+    opacity: 1;
 }
 
 /* SweetAlert 2.x (.swal-*), used by Unassigned Devices: its injected
@@ -3235,8 +3543,12 @@ html.nr:root {
 }
 
 /* Context menus (ContextJS: Docker/VM icons, device menus) */
+/* context.js keeps a menu inside the window by assuming it is ~165px wide
+   (left <= innerWidth - 168): wider, it overflows at the right edge (File
+   Manager action column) and adds a horizontal scrollbar */
 .nr .dropdown-menu {
-    min-width: 18rem;
+    box-sizing: border-box;
+    min-width: 15rem;
     padding: .4rem;
     font-size: 1.35rem;
     background-color: var(--nr-surface);
@@ -3857,8 +4169,43 @@ html.nr {
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeTools);
   }
 
+  // folder.view (and FolderView2/3) write the folder borders inline, in a
+  // colour saved with the folder. Its default is the page text colour at
+  // creation: near black or near white (#1c1b1b, #1d1b1b, #f2f2f2, ...) or
+  // the gray/azure text #606e7f, depending on theme and plugin version.
+  // Mark borders in such a colour (.nr-fv-border, see the stylesheet) so
+  // they follow the theme; any other colour was picked by the user.
+  var FOLDERS = ':is(#docker_containers, #kvm_table)';
+  var FV_BORDERS = FOLDERS + ' :is(tr.folder div.folder-preview, tr.folder .folder-preview-divider, tr[class*="-element"])';
+  var fvProbe = document.createElement('i');
+  function rgbOf(colour) {
+    fvProbe.style.color = '';
+    fvProbe.style.color = colour;
+    var m = /^rgba?\((\d+), (\d+), (\d+)/.exec(fvProbe.style.color);
+    return m ? [+m[1], +m[2], +m[3]] : null;
+  }
+  function defaultBorder(el) {
+    var s = el.style;
+    var colours = [s.getPropertyValue('--fv3-preview-border-color'), s.borderTopColor, s.borderBottomColor, s.borderLeftColor];
+    for (var i = 0; i < colours.length; i++) {
+      var c = colours[i] && rgbOf(colours[i].trim());
+      if (!c) continue;
+      var max = Math.max(c[0], c[1], c[2]), min = Math.min(c[0], c[1], c[2]);
+      if (c[0] === 96 && c[1] === 110 && c[2] === 127) return true;
+      return max - min <= 24 && (max <= 64 || min >= 216);
+    }
+    return false;
+  }
+  function markFolders() {
+    document.querySelectorAll(FV_BORDERS).forEach(function (el) {
+      var on = defaultBorder(el);
+      // Toggle only what differs: the observer below sees class changes
+      if (el.classList.contains('nr-fv-border') !== on) el.classList.toggle('nr-fv-border', on);
+    });
+  }
+
   new MutationObserver(function (records) {
-    var vue = false, usage = false, place = false;
+    var vue = false, usage = false, place = false, folders = false;
     for (var i = 0; i < records.length; i++) {
       var t = records[i].target;
       if (!vue && relevant(records[i])) vue = true;
@@ -3867,11 +4214,13 @@ html.nr {
         if (records[i].attributeName === 'style') fixRow(t);
         // The Vue profile mounts late and can change width (uptime, name)
         if (!place && tools && t.closest('#UserProfile, unraid-user-profile')) place = true;
+        if (!folders && records[i].attributeName !== 'class' && t.closest(FOLDERS)) folders = true;
       }
     }
     if (vue) syncVue();
     if (usage) syncUsage();
     if (place) placeTools();
+    if (folders) markFolders();
   }).observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'style'] });
 
   apply(read());
@@ -4024,6 +4373,7 @@ html.nr {
     syncVue();
     syncUsage();
     document.querySelectorAll('table.dashboard tr[style]').forEach(fixRow);
+    markFolders();
     syncCharts();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
