@@ -137,7 +137,15 @@
     scopes.forEach(function (el) {
       if (el && el.classList.contains('dark') !== dark) el.classList.toggle('dark', dark);
     });
+    // Stream Viewer prints its light palette class (.sv-light, .svt-light on
+    // the statistics page) from the Unraid theme: follow the switch instead.
+    // The observer below ignores class changes on these elements.
+    document.querySelectorAll(STREAMVIEWER).forEach(function (el) {
+      var cls = el.classList.contains('svt-wrapper') ? 'svt-light' : 'sv-light';
+      if (el.classList.contains(cls) === dark) el.classList.toggle(cls, !dark);
+    });
   }
+  var STREAMVIEWER = '#db-streamviewer, .sv-widget-wrap, .sv-w-modal-host, form.streamviewer-settings, .svt-wrapper';
 
   // Vue mounts late and re-applies the server theme, so watch for it. Only
   // mutations that can touch a scope trigger a sync: the Dashboard rewrites

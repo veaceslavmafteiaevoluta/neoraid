@@ -513,9 +513,17 @@ html.nr .unapi {
 }
 
 /* The UNRAID wordmark is an SVG image with a fixed red-orange gradient:
-   shift it to a custom accent like our Plugins icon (--nr-logo-filter) */
-.nr unraid-header-os-version a > img {
+   shift it to a custom accent like our Plugins icon (--nr-logo-filter).
+   7.3: unraid-header-os-version; 7.4: consolidated unraid-header (.uh-logo) */
+.nr unraid-header-os-version a > img,
+.nr .uh-logo-block a > img {
     filter: var(--nr-logo-filter, none);
+}
+
+/* 7.4 user menu: round Unraid Connect badge (white mark on a Tailwind
+   from-unraid-red to-orange gradient) follows the accent gradient */
+html.nr .unapi #UnraidHeader figure.from-unraid-red {
+    background-image: var(--nr-brand-gradient);
 }
 
 .nr.Theme--nav-top #menu {
@@ -2357,6 +2365,99 @@ html.nr:root {
 
 .nr #activestreams_streams > div[style*="#eebb00"] {
     color: var(--nr-warning) !important;
+}
+
+/* Stream Viewer: same max-width: 0 trick, but !important on an ID
+   (#db-streamviewer > tr > td): it emptied the tile (issue #6) */
+.nr table.dashboard > #db-streamviewer > tr > td {
+    max-width: none !important;
+}
+
+/* Its palette (--sv-c-*, light set under .sv-light: nr.js keeps that class
+   in step with the switch) on the tokens. Same names on its settings page */
+html.nr :is(#db-streamviewer, .sv-widget-wrap, .streamviewer-settings) {
+    --sv-c-text: var(--nr-text);
+    --sv-c-text-mid: var(--nr-text-2);
+    --sv-c-text-muted: var(--nr-muted);
+    --sv-c-text-faint: var(--nr-faint);
+    --sv-c-border: var(--nr-border);
+    --sv-c-border-strong: var(--nr-border-strong);
+    --sv-c-border-subtle: var(--nr-border);
+    --sv-c-bg-hover: var(--nr-surface-3);
+    --sv-c-bg-subtle: var(--nr-surface-2);
+    --sv-c-bg-faint: var(--nr-surface-2);
+    --sv-c-border-row: var(--nr-border);
+}
+
+/* Stream Viewer settings page: panels, controls and accent */
+html.nr .streamviewer-settings {
+    --sv-panel-bg: var(--nr-surface);
+    --sv-sec-hd-bg: var(--nr-surface-2);
+    --sv-sec-hd-hover: var(--nr-surface-3);
+    --sv-row-even: var(--nr-surface);
+    --sv-row-odd: var(--nr-surface);
+    --sv-label-bg: var(--nr-surface-2);
+    --sv-footer-bg: var(--nr-surface-2);
+    --sv-accent: var(--nr-accent);
+    --sv-accent-dim: var(--nr-accent-soft);
+    --sv-accent-border: color-mix(in srgb, var(--nr-accent) 45%, transparent);
+    --sv-tog-on: var(--nr-accent);
+    --sv-ctrl-bg: var(--nr-surface);
+    --sv-ctrl-border: var(--nr-border-strong);
+    --sv-ctrl-hover: var(--nr-muted);
+    --sv-green: var(--nr-success);
+    --sv-red: var(--nr-danger);
+    --sv-blue: var(--nr-info);
+    --sv-amber: var(--nr-warning);
+    --sv-amber-bg: var(--nr-warning-soft);
+}
+
+/* Stream Viewer statistics page (Tools): its own --svt-* set, light one
+   under .svt-light (kept in step with the switch by nr.js) */
+html.nr .svt-wrapper {
+    --svt-bg: var(--nr-bg);
+    --svt-surface: var(--nr-surface);
+    --svt-surface2: var(--nr-surface-2);
+    --svt-border: var(--nr-border);
+    --svt-border-strong: var(--nr-border-strong);
+    --svt-border-subtle: var(--nr-border);
+    --svt-text: var(--nr-text);
+    --svt-text-mid: var(--nr-text-2);
+    --svt-text-dim: var(--nr-muted);
+    --svt-text-muted: var(--nr-faint);
+    --svt-bg-subtle: var(--nr-surface-2);
+}
+
+/* Its header is icon + title in a row, then the stream count below, so the
+   icon sat level with the title only. Lay it out like the stock tiles: icon
+   on the accent plate, centred on the title + count block */
+.nr .sv-header .tile-header-left {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 1.2rem;
+    row-gap: 0;
+    align-items: center;
+}
+
+.nr .sv-header .sv-header__top {
+    display: contents;
+}
+
+.nr .sv-header .sv-header-meta {
+    grid-column: 2;
+    margin: 0; /* -13px and a 47px indent in widget.css */
+    padding-left: 0;
+    line-height: 1.8rem;
+}
+
+.nr .sv-header__top > img.sv-header__icon {
+    grid-row: 1 / span 2;
+    box-sizing: border-box;
+    width: 3.6rem !important; /* inline 32px */
+    height: 3.6rem !important;
+    padding: .7rem;
+    background-color: var(--nr-accent-soft);
+    border-radius: 1rem;
 }
 
 .nr table.dashboard td div.section {

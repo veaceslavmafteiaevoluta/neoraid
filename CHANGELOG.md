@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026.11.18a
+
+- Unraid 7.4: the UNRAID logo in the header follows a custom accent colour again. Unraid 7.4 rebuilt the header, so the logo was no longer found.
+- Unraid 7.4: the round Unraid Connect badge next to the server name (user menu) follows the accent colour too, instead of the fixed red-orange gradient.
+- Stream Viewer: the Dashboard tile is no longer empty. Its title and stream count sit on the left like the other tiles, with the icon on the same coloured plate, centred on them.
+- Stream Viewer: the tile, the settings page and the statistics page follow the light/dark switch instead of the Unraid theme (with the white theme and dark mode they showed a light panel with dark fields), and use the theme colours and accent.
+
 ## 2026.11.11b
 
 - Unraid 7.4: the new operation sheet (plugin, Docker and VM tasks) and the background task tray follow the theme: header, status strip and log edge to edge, status colours and buttons from the theme, in light and dark.
