@@ -2460,6 +2460,359 @@ html.nr .svt-wrapper {
     border-radius: 1rem;
 }
 
+/* Logs Viewer (same author as Stream Viewer, same scheme): palette in
+   --lv-c-* / --logsviewer-*, light set under .lv-light printed by PHP from
+   the Unraid theme (nr.js keeps it in step with the switch) */
+html.nr :is(.logsviewer-body, .logsviewer-header, .logsviewer-legacy-header) {
+    --lv-c-text: var(--nr-text);
+    --lv-c-text-mid: var(--nr-text-2);
+    --lv-c-text-muted: var(--nr-muted);
+    --lv-c-border: var(--nr-border);
+    --lv-c-border-strong: var(--nr-border-strong);
+    --lv-c-border-subtle: var(--nr-border);
+    --lv-c-bg-hover: var(--nr-surface-3);
+    --lv-c-bg-subtle: var(--nr-surface-2);
+    --lv-c-bg-faint: var(--nr-surface-2);
+    --lv-c-resizer: var(--nr-faint);
+    --lv-c-panel-bg: var(--nr-surface-2);
+    --logsviewer-bg: var(--nr-surface);
+    --logsviewer-border: var(--nr-border);
+    --logsviewer-text-primary: var(--nr-text);
+    --logsviewer-text-secondary: var(--nr-text-2);
+    --logsviewer-text-muted: var(--nr-muted);
+    --logsviewer-tab-bg: var(--nr-surface-2);
+    --logsviewer-tab-border: var(--nr-border-strong);
+    --logsviewer-tab-active-bg: var(--nr-surface);
+    --logsviewer-tab-active-border: var(--nr-border-strong);
+    --logsviewer-tab-hover-border: var(--nr-faint);
+    --logsviewer-tab-hover-bg: var(--nr-surface-3);
+    --logsviewer-tab-focus-ring: var(--nr-accent);
+    --logsviewer-accent: var(--nr-accent-text);
+    --logsviewer-success-bg: var(--nr-success-soft);
+    --logsviewer-success-border: var(--nr-success);
+    --logsviewer-tab-running-bg: var(--nr-success-soft);
+    --logsviewer-tab-running-border: var(--nr-success);
+    --logsviewer-log-bg: var(--nr-surface);
+    --logsviewer-toast-bg: var(--nr-surface-2);
+    --logsviewer-toast-text: var(--nr-muted);
+    --logsviewer-toast-selected: var(--nr-muted);
+}
+
+/* The log panel gets its background inline, read once at load: #ffffff or
+   #1b1b1b for the default preset without a custom colour. Those follow the
+   theme (and a later switch); a preset or a picked colour stays */
+html.nr #logsviewer-container:is([style*="--logsviewer-log-bg: #ffffff"], [style*="--logsviewer-log-bg: #1b1b1b"]) {
+    --logsviewer-log-bg: var(--nr-surface) !important;
+}
+
+/* Tile header: icon + title in a row, then the auto-scroll switch shrunk
+   with scale(.46) and pushed 5rem right. In the theme's centred column the
+   icon and title drifted to the middle (issue #7). Lay it out like the
+   stock tiles: icon on the accent plate, title and switch beside it */
+.nr .logsviewer-header .tile-header-left {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 1.2rem;
+    row-gap: 0;
+    align-items: center;
+    justify-items: start;
+}
+
+.nr .logsviewer-header .logsviewer-header__top {
+    display: contents;
+}
+
+.nr .logsviewer-header__top > img.logsviewer-header__icon {
+    grid-row: 1 / span 2;
+    box-sizing: border-box;
+    width: 3.6rem !important; /* inline 32px */
+    height: 3.6rem !important;
+    padding: .7rem;
+    background-color: var(--nr-accent-soft);
+    border-radius: 1rem;
+}
+
+.nr .logsviewer-header .logsviewer-compact {
+    grid-column: 1 / -1;
+}
+
+/* widget.css sets the offset and scale with !important in its breakpoints.
+   Same geometry as the All VMs / All Apps switch row (24px), so header,
+   icon and body line up with the VMs and Docker tiles */
+.nr .logsviewer-header__left .logsviewer-autoscroll-container {
+    grid-column: 2;
+    gap: .8rem;
+    height: 2.4rem;
+    margin: 0 !important;
+    transform: none !important;
+}
+
+.nr .logsviewer-autoscroll-title,
+.nr .logsviewer-autoscroll-state--on,
+.nr .logsviewer-autoscroll-state--off {
+    font-size: 1.2rem;
+    font-weight: 500;
+    line-height: 2.4rem;
+    color: var(--nr-muted);
+}
+
+.nr .logsviewer-autoscroll-state--on {
+    font-weight: 600;
+    color: var(--nr-accent-text);
+}
+
+/* Its switch as the theme's pill toggle (geometry is !important there) */
+.nr .logsviewer-header .logsviewer-switch {
+    flex: 0 0 3.2rem !important;
+    width: 3.2rem !important;
+    height: 1.8rem !important;
+}
+
+.nr .logsviewer-header .logsviewer-switch-slider {
+    background: var(--nr-border-strong) !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+}
+
+.nr .logsviewer-header .logsviewer-switch input:checked + .logsviewer-switch-slider {
+    background: var(--nr-accent) !important;
+}
+
+.nr .logsviewer-header .logsviewer-switch-slider::before,
+.nr .logsviewer-header .logsviewer-switch-slider::after {
+    left: .2rem !important;
+    width: 1.4rem !important;
+    height: 1.4rem !important;
+    background: #fff !important; /* knob, as the theme's switchbutton */
+    border-radius: 999px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .25) !important;
+}
+
+.nr .logsviewer-header .logsviewer-switch input:checked + .logsviewer-switch-slider::before,
+.nr .logsviewer-header .logsviewer-switch input:checked + .logsviewer-switch-slider::after {
+    transform: translateX(1.4rem) translateY(-50%) !important;
+}
+
+.nr .logsviewer-header .logsviewer-switch input:focus-visible + .logsviewer-switch-slider {
+    outline: 2px solid var(--nr-accent);
+}
+
+/* Export and settings links are 22.5px boxes around 30px icon buttons, with
+   their own hover plate: let the icon button be the button */
+.nr :is(#logsviewer-settings-icon, #logsviewer-export-icon) {
+    width: auto;
+    height: auto;
+    border-radius: 0;
+}
+
+.nr :is(#logsviewer-settings-icon, #logsviewer-export-icon):hover {
+    background-color: transparent;
+}
+
+/* Empty search row under the controls (display: flex !important in
+   widget.css): with the column gap it lifted the buttons 2px */
+.nr .logsviewer-header__right .logsviewer-header__inputs:empty {
+    display: none !important;
+}
+
+/* Level keywords in the log, counters and badges: fixed hues picked for a
+   dark panel (#ffbf00 warning was 1.6:1 on white, #378ADD 4.2:1 on dark).
+   Status tokens instead; errors stay orange-red, between warning and
+   danger. !important: the .hljs variants use it */
+.nr .logsviewer-log :is(.logsviewer-lvl-trace, .logsviewer-lvl-debug),
+.nr .logsviewer-log .logsviewer-hdr {
+    color: var(--nr-muted) !important;
+}
+
+.nr .logsviewer-log .logsviewer-lvl-info {
+    color: var(--nr-info) !important;
+}
+
+.nr .logsviewer-log .logsviewer-lvl-notice {
+    color: color-mix(in srgb, var(--nr-info) 50%, var(--nr-success)) !important;
+}
+
+.nr .logsviewer-log :is(.logsviewer-lvl-warn, .logsviewer-lvl-warning) {
+    color: var(--nr-warning) !important;
+}
+
+.nr .logsviewer-log .logsviewer-lvl-error {
+    color: color-mix(in srgb, var(--nr-danger) 55%, var(--nr-warning)) !important;
+}
+
+.nr .logsviewer-log :is(.logsviewer-lvl-critical, .logsviewer-lvl-alert, .logsviewer-lvl-emergency, .logsviewer-lvl-fatal, .logsviewer-lvl-panic) {
+    color: var(--nr-danger) !important;
+}
+
+.nr .logsviewer-badges :is(.logsviewer-badge--info, .logsviewer-count--info) {
+    color: var(--nr-info) !important;
+}
+
+.nr .logsviewer-badges :is(.logsviewer-badge--warning, .logsviewer-count--warning) {
+    color: var(--nr-warning) !important;
+}
+
+.nr .logsviewer-badges :is(.logsviewer-badge--error, .logsviewer-count--error) {
+    /* on its own tint: 15% towards the text colour for 4.5:1 */
+    color: color-mix(in srgb, color-mix(in srgb, var(--nr-danger) 55%, var(--nr-warning)) 85%, var(--nr-text)) !important;
+}
+
+.nr .logsviewer-badges :is(.logsviewer-badge--critical, .logsviewer-count--critical) {
+    color: var(--nr-danger) !important;
+}
+
+/* File size and separator in the status line: white/black alpha */
+.nr .logsviewer-toast-panel .lv-toast-size {
+    color: var(--nr-muted);
+}
+
+.nr .logsviewer-toast-panel .lv-toast-sep {
+    background: var(--nr-border-strong);
+}
+
+/* Short-lived status messages (new lines, new errors, paused, slow poll,
+   login): fixed bright hues, ~2:1 on the light panel */
+.nr .logsviewer-toast-panel .lv-toast-newlines {
+    color: var(--nr-success);
+}
+
+.nr .logsviewer-toast-panel .lv-toast-newerrors {
+    color: color-mix(in srgb, var(--nr-danger) 55%, var(--nr-warning));
+}
+
+.nr .logsviewer-toast-panel .lv-toast-newcritical {
+    color: var(--nr-danger);
+}
+
+.nr .logsviewer-toast-panel :is(.lv-toast-paused, #logsviewer-perf-toast, #logsviewer-login-toast) {
+    color: var(--nr-warning);
+}
+
+.nr .logsviewer-search-toast .lv-toast-num {
+    color: var(--nr-info);
+}
+
+/* Logs Viewer settings page: panels, controls and accent (light set under
+   .lv-light on the form, kept in step with the switch by nr.js). The
+   Support/Credits links and the version badge sit outside the form.
+   --lv-accent colours mostly text (pills, badges, warnings) */
+html.nr :is(.logsviewer-settings, .lv-footer-row) {
+    --lv-c-text: var(--nr-text);
+    --lv-c-text-mid: var(--nr-text-2);
+    --lv-c-text-muted: var(--nr-muted);
+    --lv-c-text-faint: var(--nr-muted); /* field help, arrows: faint was 2.8:1 */
+    --lv-c-border: var(--nr-border);
+    --lv-c-border-row: var(--nr-border);
+    --lv-c-border-strong: var(--nr-border-strong);
+    --lv-c-border-subtle: var(--nr-border);
+    --lv-c-bg-hover: var(--nr-surface-3);
+    --lv-c-bg-subtle: var(--nr-surface-2);
+    --lv-c-bg-faint: var(--nr-surface-2);
+    --lv-panel-bg: var(--nr-surface);
+    --lv-sec-hd-bg: var(--nr-surface-2);
+    --lv-sec-hd-hover: var(--nr-surface-3);
+    --lv-row-even: var(--nr-surface);
+    --lv-row-odd: var(--nr-surface);
+    --lv-label-bg: var(--nr-surface-2);
+    --lv-footer-bg: var(--nr-surface-2);
+    --lv-accent: var(--nr-accent-text);
+    --lv-accent-dim: var(--nr-accent-soft);
+    --lv-accent-border: color-mix(in srgb, var(--nr-accent) 45%, transparent);
+    --lv-tog-on: var(--nr-accent);
+    --lv-tog-off-track: var(--nr-border-strong);
+    --lv-tog-off-thumb: var(--nr-muted);
+    --lv-ctrl-bg: var(--nr-surface);
+    --lv-ctrl-border: var(--nr-border-strong);
+    --lv-ctrl-hover: var(--nr-muted);
+    --lv-green: var(--nr-success);
+    --lv-red: var(--nr-danger);
+    --lv-blue: var(--nr-info);
+}
+
+/* Version badge under the form: accent text on its tint was 4.3:1 */
+.nr .lv-footer-row .lv-version-badge {
+    background: transparent;
+}
+
+/* Apply and Reset to Defaults: fixed green and orange with !important */
+.nr .logsviewer-settings .lv-footer :is(input, button)[name="#apply"] {
+    color: color-mix(in srgb, var(--nr-success) 75%, var(--nr-text)) !important;
+    background: var(--nr-success-soft) !important;
+    border-color: color-mix(in srgb, var(--nr-success) 35%, transparent) !important;
+}
+
+.nr .logsviewer-settings .lv-footer #lvResetDefaults {
+    color: var(--nr-accent-text) !important;
+    background: var(--nr-accent-soft) !important;
+    border-color: color-mix(in srgb, var(--nr-accent) 35%, transparent) !important;
+}
+
+/* Logs Viewer page (Tools): its own --lvt-* set, light one under
+   .lvt-light (kept in step with the switch by nr.js) */
+html.nr .lvt-wrapper {
+    --lvt-bg: var(--nr-bg);
+    --lvt-surface: var(--nr-surface);
+    --lvt-surface2: var(--nr-surface-2);
+    --lvt-border: var(--nr-border);
+    --lvt-border-strong: var(--nr-border-strong);
+    --lvt-border-subtle: var(--nr-border);
+    --lvt-text: var(--nr-text);
+    --lvt-text-mid: var(--nr-text-2);
+    --lvt-text-dim: var(--nr-muted);
+    --lvt-text-muted: var(--nr-muted); /* counts: faint was 2-2.4:1 */
+    --lvt-bg-subtle: var(--nr-surface-2);
+    --lvt-accent: var(--nr-accent-text);
+    --lvt-accent-dim: var(--nr-accent-soft);
+    --lvt-accent-border: color-mix(in srgb, var(--nr-accent) 55%, transparent);
+    --lvt-btn-orange-bg: var(--nr-accent-soft);
+    --lvt-btn-orange-border: color-mix(in srgb, var(--nr-accent) 30%, transparent);
+    --lvt-btn-orange-hover: color-mix(in srgb, var(--nr-accent) 20%, transparent);
+    /* Live button: 9px text on its own tint, nudged towards the text colour */
+    --lvt-btn-green: color-mix(in srgb, var(--nr-success) 75%, var(--nr-text));
+    --lvt-btn-green-bg: var(--nr-success-soft);
+    --lvt-health-active: color-mix(in srgb, var(--nr-success) 75%, var(--nr-text));
+    --lvt-health-idle: var(--nr-faint);
+    --lvt-health-stale: var(--nr-warning);
+    --lvt-health-error: var(--nr-danger);
+}
+
+/* Status bar: rgba(0,0,0,.2) went mid-gray on the light page */
+.nr .lvt-wrapper .lvt-statusbar {
+    background: var(--nr-surface-2);
+}
+
+/* Severity as text (log lines, counters). --lvt-sev-* stay as they are:
+   they also fill the active counter under white text */
+html.nr .lvt-wrapper .lvt-log-line--info {
+    color: var(--nr-info);
+}
+
+html.nr .lvt-wrapper .lvt-log-line--warning {
+    color: var(--nr-warning);
+}
+
+/* errors: 15% towards the text colour, for the zebra rows */
+html.nr .lvt-wrapper :is(.lvt-log-line--error, .lvt-log-error) {
+    color: color-mix(in srgb, var(--nr-danger) 85%, var(--nr-text));
+}
+
+html.nr .lvt-wrapper .lvt-log-line--success {
+    color: var(--nr-success);
+}
+
+/* The counters are styled on #lvtPanelLogs with !important */
+html.nr #lvtPanelLogs .lvt-sev-bar .lvt-sev-count--info:not(.is-active) {
+    color: var(--nr-info) !important;
+}
+
+html.nr #lvtPanelLogs .lvt-sev-bar .lvt-sev-count--warning:not(.is-active) {
+    color: var(--nr-warning) !important;
+}
+
+html.nr #lvtPanelLogs .lvt-sev-bar :is(.lvt-sev-count--error, .lvt-sev-count--critical.has-count):not(.is-active) {
+    color: var(--nr-danger) !important;
+}
+
 .nr table.dashboard td div.section {
     font-size: 1.25rem;
     font-weight: 400;

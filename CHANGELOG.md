@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026.11.19e
+
+- Logs Viewer: the Dashboard tile header lines up with the other tiles. The icon sits on the same coloured plate, with the title and the Auto-scroll switch beside it, instead of drifting to the middle of the tile. The switch and its label match the All VMs / All Apps switch, and the header buttons are evenly sized and level with the other tiles.
+- Logs Viewer: the tile, the settings page and the Tools page follow the light/system/dark switch instead of the Unraid theme (with the white theme and dark mode they showed a white log panel and light buttons), and use the theme colours and accent.
+- Logs Viewer: log levels, counters, badges and status messages use the theme status colours, readable in light and dark mode (warnings were yellow on white). Errors stay orange-red. Theme presets and a log background colour picked in the settings are kept.
+
 ## 2026.11.18a
 
 - Unraid 7.4: the UNRAID logo in the header follows a custom accent colour again. Unraid 7.4 rebuilt the header, so the logo was no longer found.
